@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Crypto Screener — Top 100/200 (TA + Коментар)</title>
+  <title>Технически анализ — Топ 100/200 (TA + Коментар)</title>
   <style>
     :root { --bg:#0f1115; --card:#161a22; --text:#e6e6e6; --muted:#a3a3a3; --pos:#22c55e; --neg:#ef4444; --accent:#60a5fa; }
     body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial; background:var(--bg); color:var(--text) }
@@ -76,7 +76,8 @@
     </div>
 
     <div class="table-container">
-      <table id="crypto-table">
+	  <div id="status" class="loading">Зареждане на данни…</div>
+      <table id="table" style="display:none">
         <thead>
           <tr>
             <th>Валута</th>
@@ -258,14 +259,14 @@
         el.tbody.innerHTML+=`
         <tr>
           <td>${r.name}</td>
-          <td class="desktop-only mono">${r.price}</td>
+          <td>${r.price}</td>
           <td class="mono ${r.change>=0?'green':'red'}">${r.change}%</td>
           <td>${r.signals}</td>
-          <td class="desktop-only mono">${r.expPrice}</td>
-          <td class="desktop-only mono">${r.buy}</td>
-          <td class="desktop-only mono">${r.sell}</td>
-          <td class="desktop-only mono">${r.support}</td>
-          <td class="desktop-only mono">${r.resistance}</td>
+          <td>${r.expPrice}</td>
+          <td>${r.buy}</td>
+          <td>${r.sell}</td>
+          <td>${r.support}</td>
+          <td>${r.resistance}</td>
           <td class="comment">${r.comment}</td>
         </tr>`;
       });
