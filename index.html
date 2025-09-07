@@ -37,11 +37,18 @@
       table{ font-size:12px }
       .summary{ grid-template-columns:1fr }
     }
+	.table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch; /* плавно скролиране на мобилни */
+    }
+    table {
+      min-width: 900px; /* предотвратява прекалено свиване */
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Crypto Screener — Top 100/200 (TA + Коментар)</h1>
+    <h1>Технически анализ — Топ 100/200 (TA + Коментар)</h1>
     <div class="controls">
       <span class="badge" id="lastUpdated">Обновяване…</span>
       <select id="sortBy">
@@ -74,14 +81,14 @@
         <thead>
           <tr>
             <th>Валута</th>
-            <th class="desktop-only">Текуща цена (USD)</th>
+            <th>Текуща цена (USD)</th>
             <th>Очаквана промяна (%)</th>
             <th>Сигнали</th>
-            <th class="desktop-only">Очаквана цена (24h)</th>
-            <th class="desktop-only">Цена за покупка</th>
-            <th class="desktop-only">Цена за продажба</th>
-            <th class="desktop-only">Подкрепа</th>
-            <th class="desktop-only">Съпротива</th>
+            <th>Очаквана цена (24h)</th>
+            <th>Цена за покупка</th>
+            <th>Цена за продажба</th>
+            <th>Подкрепа</th>
+            <th>Съпротива</th>
             <th>Коментар</th>
           </tr>
         </thead>
@@ -89,7 +96,7 @@
       </table>
     </div>
     <div class="footnote">
-      * Индикаторите са приближения на база публични данни от CoinGecko. Не е инвестиционен съвет.
+      * mars
     </div>
   </main>
 
