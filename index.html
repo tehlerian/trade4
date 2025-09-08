@@ -37,6 +37,16 @@
       table{ font-size:12px }
       .summary{ grid-template-columns:1fr }
 	  thead { margin-bottom: 6px; }
+	  thead th {
+        position: sticky;
+        top: 0;
+        background: #333;
+        color: white;
+        z-index: 2;
+      }
+      tbody td {
+        padding-top: 18px; /* Добавя въздух под заглавията */
+      }
     }
 	.table-container {
       overflow-x: auto;
