@@ -1,298 +1,180 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
   <title>Технически анализ — Топ 100/200 (TA + Коментар)</title>
   <style>
-    :root { --bg:#0f1115; --card:#161a22; --text:#e6e6e6; --muted:#a3a3a3; --pos:#22c55e; --neg:#ef4444; --accent:#60a5fa; }
-    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial; background:var(--bg); color:var(--text) }
-    header{ padding:20px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; background:#0c0f14; position:sticky; top:0; z-index:10; border-bottom:1px solid #202635 }
-    h1{ font-size:20px; margin:0; font-weight:600 }
-    .controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center }
-    button, select, input{ background:var(--card); color:var(--text); border:1px solid #2a3142; border-radius:10px; padding:8px 12px; font-size:14px }
-    button:hover{ border-color:#3a445a; cursor:pointer }
-    .badge{ padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #2a3142; color:var(--muted) }
-    main{ padding:16px }
-    .summary{ margin-bottom:16px; display:grid; grid-template-columns:1fr 1fr; gap:16px }
-    .card{ background:var(--card); border:1px solid #202635; border-radius:14px; padding:12px }
-    .card h3{ margin:0 0 8px; font-size:14px; color:var(--muted) }
-    ul{ list-style:none; margin:0; padding:0 }
-    li{ padding:4px 0; font-size:13px }
-    .pos{ color:var(--pos) }
-    .neg{ color:var(--neg) }
-    .table-wrap{ background:var(--card); border:1px solid #202635; border-radius:14px; overflow:hidden }
-    table{ width:100%; border-collapse:collapse; font-size:13px }
-    thead th{ background:#121722; position:sticky; top:62px; z-index:5; }
-    th, td{ padding:10px; border-bottom:1px solid #202635; text-align:center; vertical-align:middle }
-    tbody tr:hover{ background:#121621 }
-    .green{ color:var(--pos); font-weight:700 }
-    .red{ color:var(--neg); font-weight:700 }
-    .mono{ font-variant-numeric: tabular-nums }
-    .comment{ text-align:left; color:var(--muted) }
-    .loading{ padding:24px; text-align:center; color:var(--muted) }
-    .footnote{ margin-top:12px; color:var(--muted); font-size:12px }
-    @media (max-width: 980px){
-      .desktop-only{ display:none }
-      table{ font-size:12px }
-      .summary{ grid-template-columns:1fr }
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
     }
-	.table-container {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch; /* плавно скролиране на мобилни */
+    h2 {
+      margin-bottom: 10px;
     }
     table {
-      min-width: 900px; /* предотвратява прекалено свиване */
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+      background: #1e1e1e;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #333;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #2a2a2a;
+    }
+    .green { color: #4caf50; font-weight: bold; }
+    .red { color: #f44336; font-weight: bold; }
+    .controls {
+      margin: 10px 0;
+    }
+    .controls button, .controls select, .controls input {
+      margin-right: 10px;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+    }
+    .controls button {
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    .controls button:hover {
+      background: #45a049;
+    }
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    /* Мобилна версия */
+    @media (max-width: 980px){
+      .desktop-only { display: none }
+      table { font-size: 12px }
+      .summary { grid-template-columns: 1fr }
+
+      .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      #crypto-table {
+        min-width: 1000px; /* фиксирана ширина, за да не се чупи */
+      }
+      #crypto-table th,
+      #crypto-table td {
+        white-space: nowrap;
+        font-size: 12px;
+        padding: 6px;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Технически анализ — Топ 100/200 (TA + Коментар)</h1>
-    <div class="controls">
-      <span class="badge" id="lastUpdated">Обновяване…</span>
-      <select id="sortBy">
-        <option value="change">Сортирай по очаквана промяна ↓</option>
-        <option value="price">Сортирай по цена ↓</option>
-        <option value="name">Сортирай по име A→Z</option>
-      </select>
-      <input id="search" placeholder="Търси (име или символ)..." />
-      <button id="download">Свали CSV</button>
-      <button id="reload">Презареди</button>
-      <button id="load200">Зареди топ 200</button>
-    </div>
-  </header>
+  <h2>Технически анализ — Топ 100/200 (TA + Коментар)</h2>
+  <div class="controls">
+    <span id="last-update"></span>
+    <select id="sort-select">
+      <option value="change">Сортирай по очаквана промяна ↓</option>
+      <option value="name">Сортирай по име</option>
+    </select>
+    <input type="text" id="search" placeholder="Търси (име или символ)...">
+    <button onclick="downloadCSV()">Свали CSV</button>
+    <button onclick="loadData()">Презареди</button>
+    <button onclick="loadData(200)">Зареди топ 200</button>
+  </div>
 
-  <main>
-    <div class="summary">
-      <div class="card">
-        <h3>Топ 5 възходящи</h3>
-        <ul id="topBull"></ul>
-      </div>
-      <div class="card">
-        <h3>Топ 5 низходящи</h3>
-        <ul id="topBear"></ul>
-      </div>
-    </div>
-
-    <div class="table-container">
-	  <div id="status" class="loading">Зареждане на данни…</div>
-      <table id="table" style="display:none">
-        <thead>
-          <tr>
-            <th>Валута</th>
-            <th>Текуща цена (USD)</th>
-            <th>Очаквана промяна (%)</th>
-            <th>Сигнали</th>
-            <th>Очаквана цена (24h)</th>
-            <th>Цена за покупка</th>
-            <th>Цена за продажба</th>
-            <th>Подкрепа</th>
-            <th>Съпротива</th>
-            <th>Коментар</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <div class="footnote">
-      * mars
-    </div>
-  </main>
+  <div class="table-container">
+    <table id="crypto-table">
+      <thead>
+        <tr>
+          <th>Валута</th>
+          <th>Текуща цена (USD)</th>
+          <th>Очаквана промяна (%)</th>
+          <th>Сигнали (RSI / MACD / BB / OBV / Fib)</th>
+          <th>Очаквана цена (24h)</th>
+          <th>Цена за покупка</th>
+          <th>Цена за продажба</th>
+          <th>Подкрепа</th>
+          <th>Съпротива</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <script>
-    const BASE = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc";
-    const PARAMS = "&sparkline=false&price_change_percentage=1h,24h,7d,14d,30d";
+    async function loadData(limit = 100) {
+      const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1&sparkline=false&price_change_percentage=1h,24h,7d,14d,30d`;
+      const res = await fetch(url);
+      const data = await res.json();
 
-    const el = {
-      status: document.getElementById("status"),
-      table: document.getElementById("table"),
-      tbody: document.querySelector("#table tbody"),
-      sortBy: document.getElementById("sortBy"),
-      search: document.getElementById("search"),
-      download: document.getElementById("download"),
-      reload: document.getElementById("reload"),
-      load200: document.getElementById("load200"),
-      last: document.getElementById("lastUpdated"),
-      topBull: document.getElementById("topBull"),
-      topBear: document.getElementById("topBear"),
-    };
+      const table = document.querySelector("#crypto-table tbody");
+      table.innerHTML = "";
 
-    let ROWS = [];
+      data.forEach(c => {
+        const price = c.current_price;
+        const change24h = c.price_change_percentage_24h || 0;
 
-    function pct(x){ return (x ?? 0); }
-    function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
+        const momentum = (c.price_change_percentage_7d_in_currency || 0)
+                       + (c.price_change_percentage_14d_in_currency || 0)
+                       + (c.price_change_percentage_30d_in_currency || 0);
+        const expectedChange = (change24h + momentum / 3) / 2;
+        const expectedPrice = price * (1 + expectedChange / 100);
 
-    function signalsFor(c){
-      const p24 = pct(c.price_change_percentage_24h);
-      const p7 = pct(c.price_change_percentage_7d_in_currency);
-      const p14 = pct(c.price_change_percentage_14d_in_currency);
-      const p30 = pct(c.price_change_percentage_30d_in_currency);
+        const support = (price * 0.95).toFixed(4);
+        const resistance = (price * 1.05).toFixed(4);
+        const buy = (price * 0.99).toFixed(4);
+        const sell = (price * 1.02).toFixed(4);
 
-      let rsi = "RSI", rsiBull = false, rsiBear = false;
-      if (p14 > 10){ rsi='<span class="green">RSI</span>'; rsiBull=true; }
-      else if (p14 < -10){ rsi='<span class="red">RSI</span>'; rsiBear=true; }
+        const signals = [
+          { name: "RSI", val: change24h > 0 ? "green" : "red" },
+          { name: "MACD", val: momentum > 0 ? "green" : "red" },
+          { name: "BB", val: expectedChange > 0 ? "green" : "red" },
+          { name: "OBV", val: c.total_volume > 0 ? "green" : "red" },
+          { name: "Fib", val: expectedChange > 0 ? "green" : "red" }
+        ].map(s => `<span class="${s.val}">${s.name}</span>`).join(" / ");
 
-      let macd="MACD", macdBull=false, macdBear=false;
-      if (p7 > p14 && p14 > p30){ macd='<span class="green">MACD</span>'; macdBull=true; }
-      else { macd='<span class="red">MACD</span>'; macdBear=true; }
-
-      let bb="BB", bbBull=false, bbBear=false;
-      if (p24 > 5){ bb='<span class="green">BB</span>'; bbBull=true; }
-      else if (p24 < -5){ bb='<span class="red">BB</span>'; bbBear=true; }
-
-      let obv="OBV", obvBull=false, obvBear=false;
-      if (c.total_volume > 0){
-        if (p24 >= 0){ obv='<span class="green">OBV</span>'; obvBull=true; }
-        else { obv='<span class="red">OBV</span>'; obvBear=true; }
-      }
-
-      let fib="Fib", fibBull=false, fibBear=false;
-      if (c.high_24h && c.low_24h){
-        const range=c.high_24h-c.low_24h;
-        if(range>0){
-          const pos=(c.current_price-c.low_24h)/range;
-          if(pos>0.8){ fib='<span class="green">Fib</span>'; fibBull=true; }
-          else if(pos<0.2){ fib='<span class="red">Fib</span>'; fibBear=true; }
-        }
-      }
-
-      return {
-        html:[rsi,macd,bb,obv,fib].join(" / "),
-        flags:{rsiBull,rsiBear,macdBull,macdBear,bbBull,bbBear,obvBull,obvBear,fibBull,fibBear}
-      };
-    }
-
-    function expectedChangeFor(c,flags){
-      const p24=pct(c.price_change_percentage_24h);
-      let pts=0;
-      pts+=flags.rsiBull?2:(flags.rsiBear?-2:0);
-      pts+=flags.macdBull?1.5:(flags.macdBear?-1.5:0);
-      pts+=flags.bbBull?1.2:(flags.bbBear?-1.2:0);
-      pts+=flags.obvBull?1:(flags.obvBear?-1:0);
-      pts+=flags.fibBull?1:(flags.fibBear?-1:0);
-      pts+=clamp(p24*0.2,-5,5);
-      return clamp(pts,-12,12);
-    }
-
-    function buySell(c,chg){
-      const price=c.current_price;
-      const support=c.low_24h||price*0.95;
-      const resistance=c.high_24h||price*1.05;
-      const buy=Math.min(price*0.995,support*1.01);
-      const sell=Math.max(price*1.01,resistance*0.99);
-      const exp=price*(1+chg/100);
-      return {support,resistance,buy,sell,exp};
-    }
-
-    function commentary(flags,chg){
-      const dir=chg>=0?"възходящ импулс":"низходящ импулс";
-      const bits=[];
-      if(flags.macdBull)bits.push("MACD сила");
-      if(flags.rsiBull)bits.push("RSI нагоре");
-      if(flags.bbBull)bits.push("горна BB");
-      if(flags.obvBull)bits.push("обем подкрепя");
-      if(flags.fibBull)bits.push("високо в диапазона");
-
-      if(flags.macdBear)bits.push("MACD слаб");
-      if(flags.rsiBear)bits.push("RSI умора");
-      if(flags.bbBear)bits.push("долна BB");
-      if(flags.obvBear)bits.push("обем не подкрепя");
-      if(flags.fibBear)bits.push("ниско в диапазона");
-
-      const note=bits.length?bits.slice(0,3).join("; "):"неутрално";
-      return `${dir}; ${note}.`;
-    }
-
-    function toCSV(rows){
-      const headers=["Name","Symbol","Price","ExpChange%","Signals","ExpPrice","Buy","Sell","Support","Resistance","Comment"];
-      const lines=[headers.join(",")];
-      rows.forEach(r=>{
-        lines.push([r.name,r.symbol,r.price,r.change,r.signalsPlain,r.expPrice,r.buy,r.sell,r.support,r.resistance,
-          `"${r.comment.replaceAll('"','""')}"`].join(","));
+        const row = `
+          <tr>
+            <td>${c.name} (${c.symbol.toUpperCase()})</td>
+            <td>${price.toFixed(4)}</td>
+            <td class="${expectedChange >= 0 ? 'green' : 'red'}">${expectedChange.toFixed(2)}%</td>
+            <td>${signals}</td>
+            <td>${expectedPrice.toFixed(4)}</td>
+            <td>${buy}</td>
+            <td>${sell}</td>
+            <td>${support}</td>
+            <td>${resistance}</td>
+          </tr>
+        `;
+        table.innerHTML += row;
       });
-      return lines.join("\n");
+
+      document.querySelector("#last-update").textContent = "Обновено: " + new Date().toLocaleString();
     }
 
-    async function load(limit=100){
-      el.status.style.display="block"; el.table.style.display="none"; el.status.textContent="Зареждане…";
-      try{
-        const url = `${BASE}&per_page=${limit}&page=1${PARAMS}`;
-        const res=await fetch(url);
-        if(!res.ok) throw new Error("HTTP "+res.status);
-        const data=await res.json();
-        ROWS=data.map(c=>{
-          const sig=signalsFor(c);
-          const chg=expectedChangeFor(c,sig.flags);
-          const bs=buySell(c,chg);
-          const signalsPlain=sig.html.replace(/<[^>]+>/g,"").replaceAll(" ","");
-          return {
-            name:`${c.name} (${(c.symbol||"").toUpperCase()})`,
-            symbol:(c.symbol||"").toUpperCase(),
-            price:c.current_price.toFixed(4),
-            change:chg.toFixed(2),
-            signals:sig.html,
-            signalsPlain,
-            expPrice:bs.exp.toFixed(4),
-            buy:bs.buy.toFixed(4),
-            sell:bs.sell.toFixed(4),
-            support:bs.support.toFixed(4),
-            resistance:bs.resistance.toFixed(4),
-            comment:commentary(sig.flags,chg),
-            _sort:{price:c.current_price,name:c.name.toLowerCase(),change:chg}
-          };
-        });
-        render();
-        el.last.textContent="Обновено: "+new Date().toLocaleString();
-      }catch(e){
-        el.status.textContent="Грешка: "+e.message;
-      }
-    }
-
-    function render(){
-      const q=(el.search.value||"").toLowerCase();
-      let f=ROWS.filter(r=>!q||r.name.toLowerCase().includes(q)||r.symbol.toLowerCase().includes(q));
-      const key=el.sortBy.value;
-      f.sort((a,b)=>key==="name"?a._sort.name.localeCompare(b._sort.name):key==="price"?b._sort.price-a._sort.price:b._sort.change-a._sort.change);
-      el.tbody.innerHTML="";
-      f.forEach(r=>{
-        el.tbody.innerHTML+=`
-        <tr>
-          <td>${r.name}</td>
-          <td>${r.price}</td>
-          <td class="mono ${r.change>=0?'green':'red'}">${r.change}%</td>
-          <td>${r.signals}</td>
-          <td>${r.expPrice}</td>
-          <td>${r.buy}</td>
-          <td>${r.sell}</td>
-          <td>${r.support}</td>
-          <td>${r.resistance}</td>
-          <td class="comment">${r.comment}</td>
-        </tr>`;
-      });
-      el.status.style.display="none"; el.table.style.display="table";
-
-      // Summary
-      const sorted=[...ROWS].sort((a,b)=>b._sort.change-a._sort.change);
-      const topBull=sorted.slice(0,5);
-      const topBear=sorted.slice(-5).reverse();
-      el.topBull.innerHTML=topBull.map(r=>`<li class="pos">${r.name}: ${r.change}%</li>`).join("");
-      el.topBear.innerHTML=topBear.map(r=>`<li class="neg">${r.name}: ${r.change}%</li>`).join("");
-    }
-
-    el.sortBy.onchange=render;
-    el.search.oninput=render;
-    el.reload.onclick=()=>load(100);
-    el.load200.onclick=()=>load(200);
-    el.download.onclick=()=>{
-      const csv=toCSV(ROWS);
-      const a=document.createElement("a");
-      a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
-      a.download="crypto_screener.csv";
+    function downloadCSV() {
+      const rows = Array.from(document.querySelectorAll("#crypto-table tr"));
+      const csv = rows.map(r => Array.from(r.querySelectorAll("th,td")).map(td => td.innerText).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "crypto_analysis.csv";
       a.click();
-    };
+      URL.revokeObjectURL(url);
+    }
 
-    load(100);
+    loadData();
   </script>
 </body>
 </html>
