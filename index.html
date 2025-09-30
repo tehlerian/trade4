@@ -1,309 +1,383 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="bg">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Технически анализ — Топ 100/200 (TA + Коментар)</title>
-  <style>
-    :root { --bg:#0f1115; --card:#161a22; --text:#e6e6e6; --muted:#a3a3a3; --pos:#22c55e; --neg:#ef4444; --accent:#60a5fa; }
-    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial; background:var(--bg); color:var(--text) }
-    header{ padding:20px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; justify-content:space-between; background:#0c0f14; position:sticky; top:0; z-index:10; border-bottom:1px solid #202635 }
-    h1{ font-size:20px; margin:0; font-weight:600 }
-    .controls{ display:flex; gap:8px; flex-wrap:wrap; align-items:center }
-    button, select, input{ background:var(--card); color:var(--text); border:1px solid #2a3142; border-radius:10px; padding:8px 12px; font-size:14px }
-    button:hover{ border-color:#3a445a; cursor:pointer }
-    .badge{ padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid #2a3142; color:var(--muted) }
-    main{ padding:16px }
-    .summary{ margin-bottom:16px; display:grid; grid-template-columns:1fr 1fr; gap:16px }
-    .card{ background:var(--card); border:1px solid #202635; border-radius:14px; padding:12px }
-    .card h3{ margin:0 0 8px; font-size:14px; color:var(--muted) }
-    ul{ list-style:none; margin:0; padding:0 }
-    li{ padding:4px 0; font-size:13px }
-    .pos{ color:var(--pos) }
-    .neg{ color:var(--neg) }
-    .table-wrap{ background:var(--card); border:1px solid #202635; border-radius:14px; overflow:hidden }
-    table{ width:100%; border-collapse:collapse; font-size:13px }
-    thead th{ background:#121722; position:sticky; top:62px; z-index:5; }
-    th, td{ padding:10px; border-bottom:1px solid #202635; text-align:center; vertical-align:middle }
-    tbody tr:hover{ background:#121621 }
-    .green{ color:var(--pos); font-weight:700 }
-    .red{ color:var(--neg); font-weight:700 }
-    .mono{ font-variant-numeric: tabular-nums }
-    .comment{ text-align:left; color:var(--muted) }
-    .loading{ padding:24px; text-align:center; color:var(--muted) }
-    .footnote{ margin-top:12px; color:var(--muted); font-size:12px }
-    @media (max-width: 980px){
-      .desktop-only{ display:none }
-      table{ font-size:12px }
-      .summary{ grid-template-columns:1fr }
-	  thead { margin-bottom: 6px; }
-	  thead th {
-        position: sticky;
-        top: 0;
-        /* background: #333;
-        color: white; */
-        z-index: 2;
-      }
-      tbody td {
-        padding-top: 18px; /* Добавя въздух под заглавията */
-      }
-    }
-	.table-container {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch; /* плавно скролиране на мобилни */
-    }
-    table {
-      min-width: 900px; /* предотвратява прекалено свиване */
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Crypto Screener — TA (30m / 1h / 4h)</title>
+<style>
+  :root{--bg:#0b0f14;--card:#0f1720;--muted:#9aa4b2;--accent:#00b39f;--danger:#ff6b6b;--glass:rgba(255,255,255,0.03)}
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;color:#e6eef6;background:linear-gradient(180deg,#071021 0%, #071727 100%);padding:20px}
+  header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+  h1{font-size:18px;margin:0;color:#dff7f2}
+  .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .tf-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer}
+  .tf-btn.active{border-color:var(--accent);color:#cff7ef;box-shadow:0 4px 16px rgba(0,179,159,0.08);background:linear-gradient(90deg, rgba(0,179,159,0.06), transparent)}
+  .main{display:flex;gap:20px}
+  .panel{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 24px rgba(2,6,12,0.6);flex:1}
+  table{width:100%;border-collapse:collapse;color:#e8f3ff;font-size:13px}
+  th,td{padding:8px 10px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03)}
+  th{color:var(--muted);font-size:12px}
+  tr:hover td{background:var(--glass)}
+  .pill{padding:4px 8px;border-radius:999px;font-weight:600;font-size:12px}
+  .buy{background:linear-gradient(90deg,#004a40,#007a63);color:#d6fff4}
+  .sell{background:linear-gradient(90deg,#4a0a0a,#7a0022);color:#ffd7d7}
+  .hold{background:linear-gradient(90deg,#3b3f49,#1f2430);color:#ddd}
+  .muted{color:var(--muted);font-size:12px}
+  .top-actions{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+  .btn{background:var(--accent);border:none;color:#00221a;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+  #progress{height:6px;background:linear-gradient(90deg,#00b39f,#008f7a);border-radius:4px;width:0%;transition:width .25s}
+  .small{font-size:12px;color:var(--muted)}
+  footer{margin-top:14px;color:var(--muted);font-size:12px}
+  @media (max-width:900px){.main{flex-direction:column}}
+</style>
 </head>
 <body>
-  <header>
-    <h1>Технически анализ — Топ 100/200 (TA + Коментар)</h1>
-    <div class="controls">
-      <span class="badge" id="lastUpdated">Обновяване…</span>
-      <select id="sortBy">
-        <option value="change">Сортирай по очаквана промяна ↓</option>
-        <option value="price">Сортирай по цена ↓</option>
-        <option value="name">Сортирай по име A→Z</option>
-      </select>
-      <input id="search" placeholder="Търси (име или символ)..." />
-      <button id="download">Свали CSV</button>
-      <button id="reload">Презареди</button>
-      <button id="load200">Зареди топ 200</button>
-    </div>
-  </header>
+<header>
+  <img src="https://raw.githubusercontent.com/tehlerian/trade4/main/icon.png" alt="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;filter:drop-shadow(0 6px 16px rgba(0,0,0,.6))">
+  <div>
+    <h1>Технически анализ — Top (TA + Коментар)</h1>
+    <div class="small">Анализ на базата на последни <span id="current-tf-label">1 час</span>. Сменете timeframe със стрелките вдясно.</div>
+  </div>
+  <div class="controls">
+    <button class="tf-btn" data-tf="4h">4 часа</button>
+    <button class="tf-btn active" data-tf="1h">1 час</button>
+    <button class="tf-btn" data-tf="30m">30 мин</button>
+  </div>
+</header>
 
-  <main>
-    <div class="summary">
-      <div class="card">
-        <h3>Топ 5 възходящи</h3>
-        <ul id="topBull"></ul>
-      </div>
-      <div class="card">
-        <h3>Топ 5 низходящи</h3>
-        <ul id="topBear"></ul>
-      </div>
+<div class="main">
+  <div class="panel" style="flex:1.2">
+    <div class="top-actions">
+      <button id="load-btn" class="btn">Зареди анализ</button>
+      <button id="reload-btn" class="btn ghost">Презареди</button>
+      <button id="csv-btn" class="btn ghost">Свали CSV</button>
+      <div style="flex:1"></div>
+      <div class="small">Сортирай: <select id="sort-select"><option value="exp">Очаквана промяна ↓</option><option value="price">Цена ↓</option><option value="name">Име A→Z</option></select></div>
     </div>
 
-    <div class="table-container">
-	  <div id="status" class="loading">Зареждане на данни…</div>
-      <table id="table" style="display:none">
+    <div style="width:100%;background:rgba(255,255,255,0.03);padding:6px;border-radius:8px;margin-bottom:10px">
+      <div id="status" class="small">Готов за анализ.</div>
+      <div style="margin-top:8px;background:rgba(255,255,255,0.02);padding:3px;border-radius:6px">
+        <div id="progress" aria-hidden="true"></div>
+      </div>
+    </div>
+
+    <div style="overflow:auto;max-height:64vh">
+      <table id="result-table">
         <thead>
           <tr>
             <th>Валута</th>
-            <th>Текуща цена (USD)</th>
-            <th>Очаквана промяна (%)</th>
+            <th>Текуща цена (USDT)</th>
+            <th>Δ% (посл. candle)</th>
             <th>Сигнали</th>
-            <th>Очаквана цена (24h)</th>
-            <th>Цена за покупка</th>
-            <th>Цена за продажба</th>
-            <th>Подкрепа</th>
-            <th>Съпротива</th>
-            <th>Коментар</th>
+            <th>SMA slope</th>
+            <th>RSI(14)</th>
+            <th class="muted">Коментар</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody id="tbody">
+          <tr><td colspan="7" class="muted">Натиснете "Зареди анализ" за да започнете — страницата ще провери кои монети имат символи на Binance и ще свали данни.</td></tr>
+        </tbody>
       </table>
     </div>
-    <div class="footnote">
-      * mars
+  </div>
+
+  <div class="panel" style="flex:0.6">
+    <h3 style="margin-top:0">Топ резултати</h3>
+    <div id="top5-up" class="small muted">Топ 5 възходящи ще се покажат тук.</div>
+    <hr style="border:none;border-top:1px dashed rgba(255,255,255,0.04);margin:10px 0">
+    <h3 style="margin:0">Настройки</h3>
+    <div style="margin-top:10px" class="small">
+      <strong>Източници:</strong><br>CoinGecko (top coins) + Binance (klines).<br><br>
+      <strong>Интервали:</strong><br>30m / 1h / 4h — смяна с бутоните горе.<br><br>
+      <strong>Бележки:</strong><br>Кодът работи директно в браузъра. Ако искаш да гледаш друг exchange — казвай.
     </div>
-  </main>
+    <hr style="border:none;border-top:1px dashed rgba(255,255,255,0.04);margin:10px 0">
+    <div class="small">
+      <strong>Лесни подобрения:</strong>
+      <ul>
+        <li>Добавяне на MACD/ATR/EMA и candle pattern detection</li>
+        <li>Сървърна кеширана версия за много бързо зареждане</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-  <script>
-    const BASE = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc";
-    const PARAMS = "&sparkline=false&price_change_percentage=1h,24h,7d,14d,30d";
+<footer>
+  <div>Създадено като копие/надстройка върху интерфейс — възможност за timeframe: <strong id="tf-footer">1h</strong>. API: CoinGecko + Binance. Ако искаш, експортирам и версия със сигнали за твоя watchlist.</div>
+</footer>
 
-    const el = {
-      status: document.getElementById("status"),
-      table: document.getElementById("table"),
-      tbody: document.querySelector("#table tbody"),
-      sortBy: document.getElementById("sortBy"),
-      search: document.getElementById("search"),
-      download: document.getElementById("download"),
-      reload: document.getElementById("reload"),
-      load200: document.getElementById("load200"),
-      last: document.getElementById("lastUpdated"),
-      topBull: document.getElementById("topBull"),
-      topBear: document.getElementById("topBear"),
-    };
+<script>
+/*
+  Single-file frontend screener:
+  - fetch top coins (CoinGecko)
+  - map to Binance symbols (SYMBOLUSDT)
+  - fetch klines for selected timeframe (30m,1h,4h)
+  - compute indicators: %change, SMA(20) slope, RSI(14)
+  - produce basic buy/hold/sell signal
+  - allow switching timeframe by clicking buttons (no reload required)
+*/
 
-    let ROWS = [];
+const TF_MAP = {
+  '30m': {label: '30 мин', binance:'30m'},
+  '1h': {label: '1 час', binance:'1h'},
+  '4h': {label: '4 часа', binance:'4h'}
+};
 
-    function pct(x){ return (x ?? 0); }
-    function clamp(n,min,max){ return Math.max(min,Math.min(max,n)); }
+let currentTF = '1h';
+document.getElementById('current-tf-label').textContent = TF_MAP[currentTF].label;
+document.getElementById('tf-footer').textContent = currentTF;
 
-    function signalsFor(c){
-      const p24 = pct(c.price_change_percentage_24h);
-      const p7 = pct(c.price_change_percentage_7d_in_currency);
-      const p14 = pct(c.price_change_percentage_14d_in_currency);
-      const p30 = pct(c.price_change_percentage_30d_in_currency);
+document.querySelectorAll('.tf-btn').forEach(b=>{
+  b.addEventListener('click', ()=> {
+    document.querySelectorAll('.tf-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    currentTF = b.getAttribute('data-tf');
+    document.getElementById('current-tf-label').textContent = TF_MAP[currentTF].label;
+    document.getElementById('tf-footer').textContent = currentTF;
+    // auto-reload analysis on timeframe change:
+    startAnalysis();
+  });
+});
 
-      let rsi = "RSI", rsiBull = false, rsiBear = false;
-      if (p14 > 10){ rsi='<span class="green">RSI</span>'; rsiBull=true; }
-      else if (p14 < -10){ rsi='<span class="red">RSI</span>'; rsiBear=true; }
+const statusEl = document.getElementById('status');
+const progressEl = document.getElementById('progress');
+const tbody = document.getElementById('tbody');
+const loadBtn = document.getElementById('load-btn');
+const reloadBtn = document.getElementById('reload-btn');
+const csvBtn = document.getElementById('csv-btn');
+const sortSelect = document.getElementById('sort-select');
 
-      let macd="MACD", macdBull=false, macdBear=false;
-      if (p7 > p14 && p14 > p30){ macd='<span class="green">MACD</span>'; macdBull=true; }
-      else { macd='<span class="red">MACD</span>'; macdBear=true; }
+loadBtn.addEventListener('click', startAnalysis);
+reloadBtn.addEventListener('click', startAnalysis);
+csvBtn.addEventListener('click', exportCSV);
+sortSelect.addEventListener('change', () => {
+  if(window.lastResults) renderTable(window.lastResults);
+});
 
-      let bb="BB", bbBull=false, bbBear=false;
-      if (p24 > 5){ bb='<span class="green">BB</span>'; bbBull=true; }
-      else if (p24 < -5){ bb='<span class="red">BB</span>'; bbBear=true; }
+// Utilities: basic numerics
+function toFixedNum(n, d=6){ return Number.isFinite(n) ? Number(n.toFixed(d)) : n; }
 
-      let obv="OBV", obvBull=false, obvBear=false;
-      if (c.total_volume > 0){
-        if (p24 >= 0){ obv='<span class="green">OBV</span>'; obvBull=true; }
-        else { obv='<span class="red">OBV</span>'; obvBear=true; }
-      }
+// Indicator helpers
+function sma(values, period){
+  if(values.length < period) return null;
+  const res = [];
+  for(let i=period-1;i<values.length;i++){
+    let s=0;
+    for(let j=i-period+1;j<=i;j++) s += values[j];
+    res.push(s/period);
+  }
+  return res;
+}
+function rsiFromCloses(closes, period=14){
+  if(closes.length < period+1) return null;
+  let gains=0, losses=0;
+  for(let i=1;i<=period;i++){
+    const diff = closes[i]-closes[i-1];
+    if(diff>0) gains+=diff; else losses+=Math.abs(diff);
+  }
+  let avgGain = gains/period, avgLoss = losses/period;
+  for(let i=period+1;i<closes.length;i++){
+    const diff = closes[i]-closes[i-1];
+    avgGain = ((avgGain*(period-1)) + (diff>0?diff:0))/period;
+    avgLoss = ((avgLoss*(period-1)) + (diff<0?Math.abs(diff):0))/period;
+  }
+  if(avgLoss === 0) return 100;
+  const rs = avgGain/avgLoss;
+  return 100 - (100/(1+rs));
+}
 
-      let fib="Fib", fibBull=false, fibBear=false;
-      if (c.high_24h && c.low_24h){
-        const range=c.high_24h-c.low_24h;
-        if(range>0){
-          const pos=(c.current_price-c.low_24h)/range;
-          if(pos>0.8){ fib='<span class="green">Fib</span>'; fibBull=true; }
-          else if(pos<0.2){ fib='<span class="red">Fib</span>'; fibBear=true; }
-        }
-      }
-
-      return {
-        html:[rsi,macd,bb,obv,fib].join(" / "),
-        flags:{rsiBull,rsiBear,macdBull,macdBear,bbBull,bbBear,obvBull,obvBear,fibBull,fibBear}
-      };
+// fetch helpers (with simple retry/backoff)
+async function fetchJSON(url, opts={}, tries=3){
+  try{
+    const r = await fetch(url, opts);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return await r.json();
+  } catch(e){
+    if(tries>1){
+      await new Promise(res=>setTimeout(res, 500));
+      return fetchJSON(url, opts, tries-1);
     }
+    throw e;
+  }
+}
 
-    function expectedChangeFor(c,flags){
-      const p24=pct(c.price_change_percentage_24h);
-      let pts=0;
-      pts+=flags.rsiBull?2:(flags.rsiBear?-2:0);
-      pts+=flags.macdBull?1.5:(flags.macdBear?-1.5:0);
-      pts+=flags.bbBull?1.2:(flags.bbBear?-1.2:0);
-      pts+=flags.obvBull?1:(flags.obvBear?-1:0);
-      pts+=flags.fibBull?1:(flags.fibBear?-1:0);
-      pts+=clamp(p24*0.2,-5,5);
-      return clamp(pts,-12,12);
+// Main flow
+async function startAnalysis(){
+  statusEl.textContent = 'Зареждане: взимам топ монети от CoinGecko...';
+  progressEl.style.width = '4%';
+  tbody.innerHTML = '<tr><td colspan="7" class="muted">Събиране на данни... (може да отнеме няколко десетки секунди)</td></tr>';
+  try{
+    // 1) Top 200 coins by market cap
+    const top = await fetchJSON('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=200&page=1&sparkline=false');
+    statusEl.textContent = `Намерени ${top.length} монети. Намиране на Binance символи...`;
+    // 2) Get Binance symbols list once
+    const exchangeInfo = await fetchJSON('https://api.binance.com/api/v3/exchangeInfo');
+    const symbolsSet = new Set(exchangeInfo.symbols.map(s=>s.symbol));
+    // Prepare candidates: try mapping coingecko symbol -> SYMBOLUSDT and SYMBOLBUSD
+    const candidates = top.map(c=>{
+      const sym = (c.symbol || '').toUpperCase();
+      return {id:c.id,name:c.name,symbol:sym,coingecko:c};
+    });
+    // Map to Binance symbols
+    const mapped = [];
+    for(const c of candidates){
+      const try1 = c.symbol + 'USDT';
+      const try2 = c.symbol + 'BUSD';
+      if(symbolsSet.has(try1)) mapped.push({...c,binanceSymbol:try1});
+      else if(symbolsSet.has(try2)) mapped.push({...c,binanceSymbol:try2});
+      // else skip (not listed on binance under that ticker)
     }
-
-    function buySell(c,chg){
-      const price=c.current_price;
-      const support=c.low_24h||price*0.95;
-      const resistance=c.high_24h||price*1.05;
-      const buy=Math.min(price*0.995,support*1.01);
-      const sell=Math.max(price*1.01,resistance*0.99);
-      const exp=price*(1+chg/100);
-      return {support,resistance,buy,sell,exp};
+    if(mapped.length===0){
+      tbody.innerHTML = '<tr><td colspan="7" class="muted">Няма съвпадения с Binance символи. Може да се използва друг exchange или различно картографиране.</td></tr>';
+      statusEl.textContent = 'Няма налични симвoли на Binance.';
+      progressEl.style.width = '0%';
+      return;
     }
-
-    function commentary(flags,chg){
-      const dir=chg>=0?"възходящ импулс":"низходящ импулс";
-      const bits=[];
-      if(flags.macdBull)bits.push("MACD сила");
-      if(flags.rsiBull)bits.push("RSI нагоре");
-      if(flags.bbBull)bits.push("горна BB");
-      if(flags.obvBull)bits.push("обем подкрепя");
-      if(flags.fibBull)bits.push("високо в диапазона");
-
-      if(flags.macdBear)bits.push("MACD слаб");
-      if(flags.rsiBear)bits.push("RSI умора");
-      if(flags.bbBear)bits.push("долна BB");
-      if(flags.obvBear)bits.push("обем не подкрепя");
-      if(flags.fibBear)bits.push("ниско в диапазона");
-
-      const note=bits.length?bits.slice(0,3).join("; "):"неутрално";
-      return `${dir}; ${note}.`;
-    }
-
-    function toCSV(rows){
-      const headers=["Name","Symbol","Price","ExpChange%","Signals","ExpPrice","Buy","Sell","Support","Resistance","Comment"];
-      const lines=[headers.join(",")];
-      rows.forEach(r=>{
-        lines.push([r.name,r.symbol,r.price,r.change,r.signalsPlain,r.expPrice,r.buy,r.sell,r.support,r.resistance,
-          `"${r.comment.replaceAll('"','""')}"`].join(","));
-      });
-      return lines.join("\n");
-    }
-
-    async function load(limit=100){
-      el.status.style.display="block"; el.table.style.display="none"; el.status.textContent="Зареждане…";
-      try{
-        const url = `${BASE}&per_page=${limit}&page=1${PARAMS}`;
-        const res=await fetch(url);
-        if(!res.ok) throw new Error("HTTP "+res.status);
-        const data=await res.json();
-        ROWS=data.map(c=>{
-          const sig=signalsFor(c);
-          const chg=expectedChangeFor(c,sig.flags);
-          const bs=buySell(c,chg);
-          const signalsPlain=sig.html.replace(/<[^>]+>/g,"").replaceAll(" ","");
+    statusEl.textContent = `Намерени ${mapped.length} монети с Binance символи. Сваляне на klines за timeframe ${currentTF}...`;
+    // 3) For each mapped, fetch klines
+    const results = [];
+    const total = mapped.length;
+    // Limit concurrency to avoid browser hitting API limits
+    const BATCH = 6;
+    for(let i=0;i<total;i+=BATCH){
+      const batch = mapped.slice(i,i+BATCH);
+      const promises = batch.map(async item=>{
+        try{
+          // kline limit: 200, we need maybe last 100 candles to compute indicators (enough)
+          const limit = 200;
+          const klines = await fetchJSON(`https://api.binance.com/api/v3/klines?symbol=${item.binanceSymbol}&interval=${currentTF === '30m' ? '30m' : currentTF}&limit=${limit}`);
+          // klines structure: [ [ openTime, open, high, low, close, ... ], ... ]
+          if(!Array.isArray(klines) || klines.length===0) throw new Error('no klines');
+          const closes = klines.map(k=>Number(k[4]));
+          const lastClose = closes[closes.length-1];
+          const prevClose = closes[closes.length-2] || lastClose;
+          const pctChange = (lastClose - prevClose)/prevClose*100;
+          // SMA(20)
+          const sma20 = sma(closes,20);
+          let slope = null;
+          if(sma20 && sma20.length>=2){
+            const sLast = sma20[sma20.length-1];
+            const sPrev = sma20[sma20.length-2];
+            slope = (sLast - sPrev)/sPrev * 100; // percent slope
+          }
+          const rsi = rsiFromCloses(closes,14);
+          // Simple signal rules:
+          let signal = 'hold', comment='';
+          if(rsi !== null && slope !== null){
+            if(rsi < 35 && slope > 0.25) { signal='buy'; comment='Oversold + rising SMA'; }
+            else if(rsi > 70 && slope < -0.25){ signal='sell'; comment='Overbought + falling SMA'; }
+            else if(pctChange > 2 && slope > 0.5){ signal='buy'; comment='Strong short-term momentum'; }
+            else if(pctChange < -3 && slope < -0.5){ signal='sell'; comment='Strong drop + downtrend'; }
+            else comment = 'Няма силен сигнал';
+          } else {
+            comment = 'Недостатъчно данни';
+          }
           return {
-            name:`${c.name} (${(c.symbol||"").toUpperCase()})`,
-            symbol:(c.symbol||"").toUpperCase(),
-            price:c.current_price.toFixed(4),
-            change:chg.toFixed(2),
-            signals:sig.html,
-            signalsPlain,
-            expPrice:bs.exp.toFixed(4),
-            buy:bs.buy.toFixed(4),
-            sell:bs.sell.toFixed(4),
-            support:bs.support.toFixed(4),
-            resistance:bs.resistance.toFixed(4),
-            comment:commentary(sig.flags,chg),
-            _sort:{price:c.current_price,name:c.name.toLowerCase(),change:chg}
+            name: item.name,
+            symbol: item.symbol,
+            binanceSymbol: item.binanceSymbol,
+            price: lastClose,
+            pctChange: pctChange,
+            smaSlope: slope,
+            rsi: rsi,
+            signal: signal,
+            comment: comment
           };
-        });
-        render();
-        el.last.textContent="Обновено: "+new Date().toLocaleString();
-      }catch(e){
-        el.status.textContent="Грешка: "+e.message;
-      }
-    }
-
-    function render(){
-      const q=(el.search.value||"").toLowerCase();
-      let f=ROWS.filter(r=>!q||r.name.toLowerCase().includes(q)||r.symbol.toLowerCase().includes(q));
-      const key=el.sortBy.value;
-      f.sort((a,b)=>key==="name"?a._sort.name.localeCompare(b._sort.name):key==="price"?b._sort.price-a._sort.price:b._sort.change-a._sort.change);
-      el.tbody.innerHTML="";
-      f.forEach(r=>{
-        el.tbody.innerHTML+=`
-        <tr>
-          <td>${r.name}</td>
-          <td>${r.price}</td>
-          <td class="mono ${r.change>=0?'green':'red'}">${r.change}%</td>
-          <td>${r.signals}</td>
-          <td>${r.expPrice}</td>
-          <td>${r.buy}</td>
-          <td>${r.sell}</td>
-          <td>${r.support}</td>
-          <td>${r.resistance}</td>
-          <td class="comment">${r.comment}</td>
-        </tr>`;
+        } catch(e){
+          return {name:item.name,symbol:item.symbol,binanceSymbol:item.binanceSymbol, error: String(e)};
+        }
       });
-      el.status.style.display="none"; el.table.style.display="table";
-
-      // Summary
-      const sorted=[...ROWS].sort((a,b)=>b._sort.change-a._sort.change);
-      const topBull=sorted.slice(0,5);
-      const topBear=sorted.slice(-5).reverse();
-      el.topBull.innerHTML=topBull.map(r=>`<li class="pos">${r.name}: ${r.change}%</li>`).join("");
-      el.topBear.innerHTML=topBear.map(r=>`<li class="neg">${r.name}: ${r.change}%</li>`).join("");
+      const batchRes = await Promise.all(promises);
+      results.push(...batchRes);
+      const p = Math.min(100, Math.round((results.length/total)*100));
+      progressEl.style.width = p + '%';
+      statusEl.textContent = `Обработени ${results.length}/${total}...`;
+      // small pause to be polite
+      await new Promise(res=>setTimeout(res, 350));
     }
 
-    el.sortBy.onchange=render;
-    el.search.oninput=render;
-    el.reload.onclick=()=>load(100);
-    el.load200.onclick=()=>load(200);
-    el.download.onclick=()=>{
-      const csv=toCSV(ROWS);
-      const a=document.createElement("a");
-      a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
-      a.download="crypto_screener.csv";
-      a.click();
-    };
+    // store and render
+    window.lastResults = results.filter(r=>!r.error);
+    statusEl.textContent = `Готово — обработени ${window.lastResults.length} монети (от ${total}).`;
+    progressEl.style.width = '100%';
+    // apply sort
+    renderTable(window.lastResults);
+    populateTopLists(window.lastResults);
+  } catch(err){
+    console.error(err);
+    statusEl.textContent = 'Грешка при зареждане: ' + (err.message || err);
+    tbody.innerHTML = '<tr><td colspan="7" class="muted">Грешка при сваляне на данни. Гледай конзолата за подробности.</td></tr>';
+    progressEl.style.width = '0%';
+  }
+}
 
-    load(100);
-  </script>
+function renderTable(data){
+  // sort according to select
+  const sort = sortSelect.value;
+  let sorted = data.slice();
+  if(sort === 'exp') sorted.sort((a,b)=> (b.pctChange||0) - (a.pctChange||0));
+  else if(sort === 'price') sorted.sort((a,b)=> (b.price||0) - (a.price||0));
+  else if(sort === 'name') sorted.sort((a,b)=> a.name.localeCompare(b.name));
+  // render first 200 rows max
+  const rows = sorted.slice(0,200).map(r=>{
+    const price = r.price!==undefined ? toFixedNum(r.price,6) : '—';
+    const pct = r.pctChange!==undefined ? toFixedNum(r.pctChange,2) + '%' : '—';
+    const slope = r.smaSlope!==null && r.smaSlope!==undefined ? toFixedNum(r.smaSlope,3) + '%' : '—';
+    const rsi = r.rsi!==null && r.rsi!==undefined ? toFixedNum(r.rsi,2) : '—';
+    const pillClass = r.signal === 'buy' ? 'buy' : (r.signal==='sell' ? 'sell' : 'hold');
+    return `<tr>
+      <td><strong>${r.symbol}</strong> <div class="muted">${r.name}<div></td>
+      <td>${price}</td>
+      <td>${pct}</td>
+      <td><span class="pill ${pillClass}">${r.signal.toUpperCase()}</span></td>
+      <td>${slope}</td>
+      <td>${rsi}</td>
+      <td class="muted">${r.comment || ''}</td>
+    </tr>`;
+  }).join('');
+  tbody.innerHTML = rows || '<tr><td colspan="7" class="muted">Няма резултати.</td></tr>';
+}
+
+// top lists simple
+function populateTopLists(results){
+  const up = results.slice().sort((a,b)=> (b.pctChange||0)-(a.pctChange||0)).slice(0,5);
+  const down = results.slice().sort((a,b)=> (a.pctChange||0)-(b.pctChange||0)).slice(0,5);
+  const upHtml = up.map(r=>`${r.symbol} <span class="muted">${toFixedNum(r.pctChange,2)}%</span>`).join('<br>');
+  const downHtml = down.map(r=>`${r.symbol} <span class="muted">${toFixedNum(r.pctChange,2)}%</span>`).join('<br>');
+  document.getElementById('top5-up').innerHTML = `<strong>Топ 5 възходящи</strong><br>${upHtml}<hr style="border:none;border-top:1px dashed rgba(255,255,255,0.04)"><strong>Топ 5 низходящи</strong><br>${downHtml}`;
+}
+
+// CSV export
+function exportCSV(){
+  if(!window.lastResults || window.lastResults.length===0){
+    alert('Няма данни за експорт — направи анализ първо.');
+    return;
+  }
+  const rows = [
+    ['symbol','name','binanceSymbol','price','pctChange','smaSlope','rsi','signal','comment']
+  ];
+  for(const r of window.lastResults){
+    rows.push([
+      r.symbol, r.name, r.binanceSymbol || '', r.price || '', r.pctChange || '', r.smaSlope || '', r.rsi || '', r.signal || '', (r.comment||'').replace(/[\n\r,]+/g,' ')
+    ]);
+  }
+  const csv = rows.map(r => r.map(cell=> `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `screener_${currentTF}_${(new Date()).toISOString().slice(0,19)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// auto-start if user wants: (disabled by default)
+// startAnalysis();
+
+</script>
 </body>
 </html>
