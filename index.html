@@ -3,380 +3,512 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Crypto Screener — TA (30m / 1h / 4h)</title>
+<title>Crypto Screener — Real TA (30m/1h/4h/24h)</title>
 <style>
-  :root{--bg:#0b0f14;--card:#0f1720;--muted:#9aa4b2;--accent:#00b39f;--danger:#ff6b6b;--glass:rgba(255,255,255,0.03)}
-  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;color:#e6eef6;background:linear-gradient(180deg,#071021 0%, #071727 100%);padding:20px}
-  header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-  h1{font-size:18px;margin:0;color:#dff7f2}
-  .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
-  .tf-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:6px 10px;border-radius:6px;cursor:pointer}
-  .tf-btn.active{border-color:var(--accent);color:#cff7ef;box-shadow:0 4px 16px rgba(0,179,159,0.08);background:linear-gradient(90deg, rgba(0,179,159,0.06), transparent)}
-  .main{display:flex;gap:20px}
-  .panel{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 24px rgba(2,6,12,0.6);flex:1}
-  table{width:100%;border-collapse:collapse;color:#e8f3ff;font-size:13px}
-  th,td{padding:8px 10px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03)}
-  th{color:var(--muted);font-size:12px}
-  tr:hover td{background:var(--glass)}
-  .pill{padding:4px 8px;border-radius:999px;font-weight:600;font-size:12px}
-  .buy{background:linear-gradient(90deg,#004a40,#007a63);color:#d6fff4}
-  .sell{background:linear-gradient(90deg,#4a0a0a,#7a0022);color:#ffd7d7}
-  .hold{background:linear-gradient(90deg,#3b3f49,#1f2430);color:#ddd}
-  .muted{color:var(--muted);font-size:12px}
-  .top-actions{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-  .btn{background:var(--accent);border:none;color:#00221a;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
-  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-  #progress{height:6px;background:linear-gradient(90deg,#00b39f,#008f7a);border-radius:4px;width:0%;transition:width .25s}
+  :root{--bg:#0f1115;--card:#161a22;--text:#e6e6e6;--muted:#a3a3a3;--pos:#22c55e;--neg:#ef4444;--accent:#60a5fa}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;background:var(--bg);color:var(--text)}
+  header{padding:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;background:#0c0f14;position:sticky;top:0;z-index:20;border-bottom:1px solid #202635}
+  h1{font-size:18px;margin:0;font-weight:600}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  button, select, input{background:var(--card);color:var(--text);border:1px solid #2a3142;border-radius:10px;padding:8px 10px;font-size:13px}
+  button:hover{cursor:pointer;border-color:#3a445a}
+  .badge{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid #2a3142;color:var(--muted)}
+  main{padding:16px}
+  .summary{margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{background:var(--card);border:1px solid #202635;border-radius:12px;padding:12px}
+  .card h3{margin:0 0 8px;font-size:13px;color:var(--muted)}
+  ul{list-style:none;margin:0;padding:0}
+  li{padding:4px 0;font-size:13px}
+  .pos{color:var(--pos)}
+  .neg{color:var(--neg)}
+  .table-wrap{background:var(--card);border:1px solid #202635;border-radius:12px;overflow:hidden}
+  .table-container{overflow:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:1000px}
+  thead th{background:#121722;position:sticky;top:62px;z-index:5;padding:10px;text-align:center}
+  th,td{padding:10px;border-bottom:1px solid #202635;text-align:center;vertical-align:middle}
+  tbody tr:hover{background:#121621}
+  .green{color:var(--pos);font-weight:700}
+  .red{color:var(--neg);font-weight:700}
+  .mono{font-variant-numeric:tabular-nums}
+  .comment{ text-align:left;color:var(--muted);max-width:320px }
+  .loading{padding:24px;text-align:center;color:var(--muted)}
   .small{font-size:12px;color:var(--muted)}
-  footer{margin-top:14px;color:var(--muted);font-size:12px}
-  @media (max-width:900px){.main{flex-direction:column}}
+  #progressWrap{background:rgba(255,255,255,0.03);border-radius:8px;padding:6px;margin-left:8px;min-width:220px}
+  #progress{height:8px;background:linear-gradient(90deg,var(--accent),#00b39f);border-radius:6px;width:0%;transition:width .2s}
+  @media (max-width:980px){
+    .desktop-only{display:none}
+    table{font-size:12px;min-width:900px}
+    .summary{grid-template-columns:1fr}
+    thead th{top:56px}
+  }
 </style>
 </head>
 <body>
 <header>
-  <img src="https://raw.githubusercontent.com/tehlerian/trade4/main/icon.png" alt="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;filter:drop-shadow(0 6px 16px rgba(0,0,0,.6))">
-  <div>
-    <h1>Технически анализ — Top (TA + Коментар)</h1>
-    <div class="small">Анализ на базата на последни <span id="current-tf-label">1 час</span>. Сменете timeframe със стрелките вдясно.</div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <h1>Технически анализ — Top 100/200 (Binance klines + Real TA)</h1>
+    <span class="small" style="margin-left:8px;color:var(--muted)">Timeframe:</span>
+    <select id="timeframe" title="Избери timeframe">
+      <option value="30m">30m</option>
+      <option value="1h" selected>1h</option>
+      <option value="4h">4h</option>
+      <option value="1d">24h</option>
+    </select>
   </div>
+
   <div class="controls">
-    <button class="tf-btn" data-tf="4h">4 часа</button>
-    <button class="tf-btn active" data-tf="1h">1 час</button>
-    <button class="tf-btn" data-tf="30m">30 мин</button>
+    <span class="badge" id="lastUpdated">Обновяване…</span>
+    <select id="sortBy">
+      <option value="change">Сортирай по очаквана промяна ↓</option>
+      <option value="price">Сортирай по цена ↓</option>
+      <option value="name">Сортирай по име A→Z</option>
+    </select>
+    <input id="search" placeholder="Търси (име или символ)..." />
+    <button id="download">Свали CSV</button>
+    <button id="reload">Презареди</button>
+    <button id="load200">Зареди топ 200</button>
+    <div id="progressWrap"><div id="progress"></div></div>
   </div>
 </header>
 
-<div class="main">
-  <div class="panel" style="flex:1.2">
-    <div class="top-actions">
-      <button id="load-btn" class="btn">Зареди анализ</button>
-      <button id="reload-btn" class="btn ghost">Презареди</button>
-      <button id="csv-btn" class="btn ghost">Свали CSV</button>
-      <div style="flex:1"></div>
-      <div class="small">Сортирай: <select id="sort-select"><option value="exp">Очаквана промяна ↓</option><option value="price">Цена ↓</option><option value="name">Име A→Z</option></select></div>
+<main>
+  <div class="summary">
+    <div class="card">
+      <h3>Топ 5 възходящи</h3>
+      <ul id="topBull"></ul>
     </div>
-
-    <div style="width:100%;background:rgba(255,255,255,0.03);padding:6px;border-radius:8px;margin-bottom:10px">
-      <div id="status" class="small">Готов за анализ.</div>
-      <div style="margin-top:8px;background:rgba(255,255,255,0.02);padding:3px;border-radius:6px">
-        <div id="progress" aria-hidden="true"></div>
-      </div>
+    <div class="card">
+      <h3>Топ 5 низходящи</h3>
+      <ul id="topBear"></ul>
     </div>
+  </div>
 
-    <div style="overflow:auto;max-height:64vh">
-      <table id="result-table">
+  <div class="table-wrap">
+    <div id="status" class="loading">Готов за зареждане. Избери timeframe и натисни "Презареди" или "Зареди топ 200".</div>
+    <div class="table-container">
+      <table id="table" style="display:none">
         <thead>
           <tr>
             <th>Валута</th>
-            <th>Текуща цена (USDT)</th>
+            <th>Цена (USDT)</th>
             <th>Δ% (посл. candle)</th>
-            <th>Сигнали</th>
-            <th>SMA slope</th>
             <th>RSI(14)</th>
-            <th class="muted">Коментар</th>
+            <th>MACD</th>
+            <th>BB pos</th>
+            <th>Очаквана промяна %</th>
+            <th>Очаквана цена</th>
+            <th>Buy</th>
+            <th>Sell</th>
+            <th>Коментар</th>
           </tr>
         </thead>
-        <tbody id="tbody">
-          <tr><td colspan="7" class="muted">Натиснете "Зареди анализ" за да започнете — страницата ще провери кои монети имат символи на Binance и ще свали данни.</td></tr>
-        </tbody>
+        <tbody></tbody>
       </table>
     </div>
   </div>
-
-  <div class="panel" style="flex:0.6">
-    <h3 style="margin-top:0">Топ резултати</h3>
-    <div id="top5-up" class="small muted">Топ 5 възходящи ще се покажат тук.</div>
-    <hr style="border:none;border-top:1px dashed rgba(255,255,255,0.04);margin:10px 0">
-    <h3 style="margin:0">Настройки</h3>
-    <div style="margin-top:10px" class="small">
-      <strong>Източници:</strong><br>CoinGecko (top coins) + Binance (klines).<br><br>
-      <strong>Интервали:</strong><br>30m / 1h / 4h — смяна с бутоните горе.<br><br>
-      <strong>Бележки:</strong><br>Кодът работи директно в браузъра. Ако искаш да гледаш друг exchange — казвай.
-    </div>
-    <hr style="border:none;border-top:1px dashed rgba(255,255,255,0.04);margin:10px 0">
-    <div class="small">
-      <strong>Лесни подобрения:</strong>
-      <ul>
-        <li>Добавяне на MACD/ATR/EMA и candle pattern detection</li>
-        <li>Сървърна кеширана версия за много бързо зареждане</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<footer>
-  <div>Създадено като копие/надстройка върху интерфейс — възможност за timeframe: <strong id="tf-footer">1h</strong>. API: CoinGecko + Binance. Ако искаш, експортирам и версия със сигнали за твоя watchlist.</div>
-</footer>
+  <div class="small" style="margin-top:8px;color:var(--muted)">API: CoinGecko (top list) + Binance (klines). Хостинг: GitHub Pages (static).</div>
+</main>
 
 <script>
 /*
-  Single-file frontend screener:
-  - fetch top coins (CoinGecko)
-  - map to Binance symbols (SYMBOLUSDT)
-  - fetch klines for selected timeframe (30m,1h,4h)
-  - compute indicators: %change, SMA(20) slope, RSI(14)
-  - produce basic buy/hold/sell signal
-  - allow switching timeframe by clicking buttons (no reload required)
+  Single-file screener using CoinGecko + Binance klines
+  - Timeframes: 30m, 1h, 4h, 1d
+  - Indicators: RSI(14), EMA(12/26), MACD(12,26,9), Bollinger Bands(20,2)
+  - Concurrency-limited fetching & batching to avoid rate limits
+  - Output: table with signals, CSV export
 */
 
-const TF_MAP = {
-  '30m': {label: '30 мин', binance:'30m'},
-  '1h': {label: '1 час', binance:'1h'},
-  '4h': {label: '4 часа', binance:'4h'}
+const el = {
+  status: document.getElementById('status'),
+  table: document.getElementById('table'),
+  tbody: document.querySelector('#table tbody'),
+  sortBy: document.getElementById('sortBy'),
+  search: document.getElementById('search'),
+  download: document.getElementById('download'),
+  reload: document.getElementById('reload'),
+  load200: document.getElementById('load200'),
+  last: document.getElementById('lastUpdated'),
+  topBull: document.getElementById('topBull'),
+  topBear: document.getElementById('topBear'),
+  timeframe: document.getElementById('timeframe'),
+  progress: document.getElementById('progress')
 };
 
-let currentTF = '1h';
-document.getElementById('current-tf-label').textContent = TF_MAP[currentTF].label;
-document.getElementById('tf-footer').textContent = currentTF;
+let ROWS = [];
+let lastFetchedAt = null;
 
-document.querySelectorAll('.tf-btn').forEach(b=>{
-  b.addEventListener('click', ()=> {
-    document.querySelectorAll('.tf-btn').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    currentTF = b.getAttribute('data-tf');
-    document.getElementById('current-tf-label').textContent = TF_MAP[currentTF].label;
-    document.getElementById('tf-footer').textContent = currentTF;
-    // auto-reload analysis on timeframe change:
-    startAnalysis();
-  });
-});
+// Helpers: numeric
+const toFixed = (n, d=4) => (Number.isFinite(n) ? Number(n).toFixed(d) : '—');
 
-const statusEl = document.getElementById('status');
-const progressEl = document.getElementById('progress');
-const tbody = document.getElementById('tbody');
-const loadBtn = document.getElementById('load-btn');
-const reloadBtn = document.getElementById('reload-btn');
-const csvBtn = document.getElementById('csv-btn');
-const sortSelect = document.getElementById('sort-select');
+// Fetch helpers with retry
+async function fetchJSON(url, tries=3){
+  try{
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return await r.json();
+  } catch(e){
+    if(tries>1){ await new Promise(r=>setTimeout(r,400)); return fetchJSON(url,tries-1); }
+    throw e;
+  }
+}
 
-loadBtn.addEventListener('click', startAnalysis);
-reloadBtn.addEventListener('click', startAnalysis);
-csvBtn.addEventListener('click', exportCSV);
-sortSelect.addEventListener('change', () => {
-  if(window.lastResults) renderTable(window.lastResults);
-});
-
-// Utilities: basic numerics
-function toFixedNum(n, d=6){ return Number.isFinite(n) ? Number(n.toFixed(d)) : n; }
-
-// Indicator helpers
-function sma(values, period){
-  if(values.length < period) return null;
+// TA helpers
+function sma(arr, period){
+  if(arr.length < period) return null;
   const res = [];
-  for(let i=period-1;i<values.length;i++){
-    let s=0;
-    for(let j=i-period+1;j<=i;j++) s += values[j];
-    res.push(s/period);
+  let sum = 0;
+  for(let i=0;i<arr.length;i++){
+    sum += arr[i];
+    if(i>=period) sum -= arr[i-period];
+    if(i >= period-1) res.push(sum/period);
   }
   return res;
 }
-function rsiFromCloses(closes, period=14){
+function stddev(arr, period){
+  if(arr.length < period) return null;
+  const res = [];
+  for(let i=0;i<=arr.length-period;i++){
+    const slice = arr.slice(i,i+period);
+    const mean = slice.reduce((a,b)=>a+b,0)/period;
+    const variance = slice.reduce((a,b)=>a + (b-mean)**2,0)/period;
+    res.push(Math.sqrt(variance));
+  }
+  return res;
+}
+function ema(arr, period){
+  if(arr.length < period) return null;
+  const k = 2/(period+1);
+  const res = [];
+  let prev = arr.slice(0,period).reduce((a,b)=>a+b,0)/period;
+  res.push(prev);
+  for(let i=period;i<arr.length;i++){
+    const cur = arr[i]*k + prev*(1-k);
+    res.push(cur);
+    prev = cur;
+  }
+  return res;
+}
+function rsi(closes, period=14){
   if(closes.length < period+1) return null;
   let gains=0, losses=0;
   for(let i=1;i<=period;i++){
-    const diff = closes[i]-closes[i-1];
-    if(diff>0) gains+=diff; else losses+=Math.abs(diff);
+    const d = closes[i]-closes[i-1];
+    if(d>0) gains += d; else losses += Math.abs(d);
   }
   let avgGain = gains/period, avgLoss = losses/period;
   for(let i=period+1;i<closes.length;i++){
-    const diff = closes[i]-closes[i-1];
-    avgGain = ((avgGain*(period-1)) + (diff>0?diff:0))/period;
-    avgLoss = ((avgLoss*(period-1)) + (diff<0?Math.abs(diff):0))/period;
+    const d = closes[i]-closes[i-1];
+    avgGain = ((avgGain*(period-1)) + (d>0?d:0))/period;
+    avgLoss = ((avgLoss*(period-1)) + (d<0?Math.abs(d):0))/period;
   }
   if(avgLoss === 0) return 100;
   const rs = avgGain/avgLoss;
   return 100 - (100/(1+rs));
 }
-
-// fetch helpers (with simple retry/backoff)
-async function fetchJSON(url, opts={}, tries=3){
-  try{
-    const r = await fetch(url, opts);
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    return await r.json();
-  } catch(e){
-    if(tries>1){
-      await new Promise(res=>setTimeout(res, 500));
-      return fetchJSON(url, opts, tries-1);
-    }
-    throw e;
+function macdVals(closes, fast=12, slow=26, signal=9){
+  if(closes.length < slow+signal) return null;
+  const emaFast = ema(closes, fast);
+  const emaSlow = ema(closes, slow);
+  if(!emaFast || !emaSlow) return null;
+  // align: emaFast length = closes.length - fast +1, emaSlow = closes.length - slow +1
+  // compute MACD series where both exist: start index = (slow - fast)
+  const startOffset = slow - fast;
+  const macd = [];
+  for(let i=0;i<emaSlow.length;i++){
+    const f = emaFast[i + startOffset];
+    const s = emaSlow[i];
+    macd.push(f - s);
   }
+  const signalLine = ema(macd, signal);
+  if(!signalLine) return null;
+  // macd and signalLine aligned: signalLine corresponds to macd indices starting at signal-1
+  // We'll return last macd and last signal
+  const macdLast = macd[macd.length - 1];
+  const signalLast = signalLine[signalLine.length - 1];
+  return {macdSeries:macd, signalSeries:signalLine, macdLast, signalLast};
 }
 
-// Main flow
-async function startAnalysis(){
-  statusEl.textContent = 'Зареждане: взимам топ монети от CoinGecko...';
-  progressEl.style.width = '4%';
-  tbody.innerHTML = '<tr><td colspan="7" class="muted">Събиране на данни... (може да отнеме няколко десетки секунди)</td></tr>';
+// Map CoinGecko -> Binance symbol (try USDT, then BUSD)
+async function getBinanceSymbolsSet(){
+  const info = await fetchJSON('https://api.binance.com/api/v3/exchangeInfo');
+  const symbols = new Set(info.symbols.map(s => s.symbol));
+  return symbols;
+}
+
+// Compute signals based on indicators
+function deriveSignalsFromTA(lastClose, closes, indicators){
+  // indicators: { rsiVal, macdLast, signalLast, bb: {upper, middle, lower} }
+  const flags = {};
+  // RSI flag
+  flags.rsiBull = indicators.rsiVal !== null && indicators.rsiVal < 35; // oversold
+  flags.rsiBear = indicators.rsiVal !== null && indicators.rsiVal > 70; // overbought
+  // MACD flag
+  flags.macdBull = indicators.macdLast !== null && indicators.signalLast !== null && indicators.macdLast > indicators.signalLast;
+  flags.macdBear = indicators.macdLast !== null && indicators.signalLast !== null && indicators.macdLast < indicators.signalLast;
+  // BB position
+  flags.bbUpper = indicators.bb && lastClose > indicators.bb.upper;
+  flags.bbMiddle = indicators.bb && Math.abs(lastClose - indicators.bb.middle) < (indicators.bb.upper - indicators.bb.middle)*0.1;
+  flags.bbLower = indicators.bb && lastClose < indicators.bb.lower;
+  // momentum short-term: compare last candle relative change
+  const last = closes[closes.length-1], prev = closes[closes.length-2] || closes[closes.length-1];
+  const pct = prev ? (last - prev)/prev*100 : 0;
+  flags.momentumUp = pct > 1.0;
+  flags.momentumDown = pct < -1.5;
+  return {flags, pct};
+}
+
+// Expected change scoring: combine flags into % score
+function expectedChangeFromFlags(flags, pctShort){
+  let pts = 0;
+  if(flags.rsiBull) pts += 2;
+  if(flags.rsiBear) pts -= 2;
+  if(flags.macdBull) pts += 1.5;
+  if(flags.macdBear) pts -= 1.5;
+  if(flags.bbUpper) pts += 1.5;
+  if(flags.bbLower) pts -= 1.5;
+  if(flags.momentumUp) pts += 1;
+  if(flags.momentumDown) pts -= 1.2;
+  pts += clamp(pctShort * 0.2, -3, 3); // small contribution from immediate candle
+  return clamp(pts, -20, 20);
+}
+
+function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+// Build comment text
+function commentFromFlags(flags){
+  const bits = [];
+  if(flags.macdBull) bits.push('MACD bullish');
+  if(flags.rsiBull) bits.push('RSI oversold -> rebound');
+  if(flags.bbUpper) bits.push('Above BB upper');
+  if(flags.momentumUp) bits.push('Short momentum');
+  if(flags.macdBear) bits.push('MACD bearish');
+  if(flags.rsiBear) bits.push('RSI overbought');
+  if(flags.bbLower) bits.push('Below BB lower');
+  return bits.length ? bits.slice(0,3).join('; ') : 'Neutral';
+}
+
+// Main load flow
+async function load(limit=100){
+  el.progress.style.width = '2%';
+  el.status.style.display = 'block';
+  el.table.style.display = 'none';
+  el.status.textContent = 'Зареждане: взимане на списък с монети от CoinGecko...';
   try{
-    // 1) Top 200 coins by market cap
-    const top = await fetchJSON('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=200&page=1&sparkline=false');
-    statusEl.textContent = `Намерени ${top.length} монети. Намиране на Binance символи...`;
-    // 2) Get Binance symbols list once
-    const exchangeInfo = await fetchJSON('https://api.binance.com/api/v3/exchangeInfo');
-    const symbolsSet = new Set(exchangeInfo.symbols.map(s=>s.symbol));
-    // Prepare candidates: try mapping coingecko symbol -> SYMBOLUSDT and SYMBOLBUSD
-    const candidates = top.map(c=>{
+    const timeframe = el.timeframe.value; // '30m','1h','4h','1d'
+    const per_page = limit;
+    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${per_page}&page=1&sparkline=false`;
+    const coins = await fetchJSON(url);
+    el.status.textContent = `Намерени ${coins.length} монети. Зареждам Binance symbols...`;
+    el.progress.style.width = '8%';
+
+    const symbolsSet = await getBinanceSymbolsSet();
+    el.progress.style.width = '12%';
+    // Map coins -> binance symbols attempts
+    const mapped = coins.map(c => {
       const sym = (c.symbol || '').toUpperCase();
-      return {id:c.id,name:c.name,symbol:sym,coingecko:c};
+      const try1 = sym + 'USDT';
+      const try2 = sym + 'BUSD';
+      if(symbolsSet.has(try1)) return {...c, binance: try1};
+      if(symbolsSet.has(try2)) return {...c, binance: try2};
+      // handle special cases: some tokens have suffixes (e.g., 'WBTC' vs 'BTC')
+      return {...c, binance: null};
     });
-    // Map to Binance symbols
-    const mapped = [];
-    for(const c of candidates){
-      const try1 = c.symbol + 'USDT';
-      const try2 = c.symbol + 'BUSD';
-      if(symbolsSet.has(try1)) mapped.push({...c,binanceSymbol:try1});
-      else if(symbolsSet.has(try2)) mapped.push({...c,binanceSymbol:try2});
-      // else skip (not listed on binance under that ticker)
-    }
-    if(mapped.length===0){
-      tbody.innerHTML = '<tr><td colspan="7" class="muted">Няма съвпадения с Binance символи. Може да се използва друг exchange или различно картографиране.</td></tr>';
-      statusEl.textContent = 'Няма налични симвoли на Binance.';
-      progressEl.style.width = '0%';
+
+    // Filter to those with binance symbol; keep originals without mapping for info
+    const toProcess = mapped.filter(m => m.binance);
+    if(toProcess.length === 0){
+      el.status.textContent = 'Няма съвпадения с Binance trading pairs. Мапингът не намери USDT/BUSD пазари.';
       return;
     }
-    statusEl.textContent = `Намерени ${mapped.length} монети с Binance символи. Сваляне на klines за timeframe ${currentTF}...`;
-    // 3) For each mapped, fetch klines
+    el.status.textContent = `Ще обработя ${toProcess.length} монети (mapped to Binance). Изтеглям klines за timeframe ${timeframe}...`;
+    el.progress.style.width = '16%';
+
+    // concurrency control
+    const concurrency = 6;
     const results = [];
-    const total = mapped.length;
-    // Limit concurrency to avoid browser hitting API limits
-    const BATCH = 6;
-    for(let i=0;i<total;i+=BATCH){
-      const batch = mapped.slice(i,i+BATCH);
-      const promises = batch.map(async item=>{
-        try{
-          // kline limit: 200, we need maybe last 100 candles to compute indicators (enough)
-          const limit = 200;
-          const klines = await fetchJSON(`https://api.binance.com/api/v3/klines?symbol=${item.binanceSymbol}&interval=${currentTF === '30m' ? '30m' : currentTF}&limit=${limit}`);
-          // klines structure: [ [ openTime, open, high, low, close, ... ], ... ]
-          if(!Array.isArray(klines) || klines.length===0) throw new Error('no klines');
-          const closes = klines.map(k=>Number(k[4]));
+    let idx = 0;
+    const total = toProcess.length;
+    // helper to fetch klines for a symbol
+    const intervalMap = {'30m':'30m','1h':'1h','4h':'4h','1d':'1d'};
+    const limitK = 300; // candles; usually enough for indicators
+    async function worker(){
+      while(true){
+        const i = idx++;
+        if(i >= total) break;
+        const item = toProcess[i];
+        try {
+          const klinesUrl = `https://api.binance.com/api/v3/klines?symbol=${item.binance}&interval=${intervalMap[timeframe]}&limit=${limitK}`;
+          const kl = await fetchJSON(klinesUrl).catch(e => { throw new Error('klines error '+e.message); });
+          if(!Array.isArray(kl) || kl.length===0) throw new Error('no klines');
+          const closes = kl.map(k => Number(k[4]));
+          const highs = kl.map(k => Number(k[2]));
+          const lows = kl.map(k => Number(k[3]));
           const lastClose = closes[closes.length-1];
           const prevClose = closes[closes.length-2] || lastClose;
-          const pctChange = (lastClose - prevClose)/prevClose*100;
-          // SMA(20)
-          const sma20 = sma(closes,20);
-          let slope = null;
-          if(sma20 && sma20.length>=2){
-            const sLast = sma20[sma20.length-1];
-            const sPrev = sma20[sma20.length-2];
-            slope = (sLast - sPrev)/sPrev * 100; // percent slope
+          const pctCandle = prevClose ? (lastClose - prevClose)/prevClose*100 : 0;
+
+          // indicators
+          const rsiVal = rsi(closes,14);
+          const macdRes = macdVals(closes,12,26,9);
+          const bbSma = sma(closes,20);
+          const bbStd = stddev(closes,20);
+          let bb = null;
+          if(bbSma && bbStd){
+            const m = bbSma[bbSma.length-1];
+            const s = bbStd[bbStd.length-1];
+            bb = {middle: m, upper: m + 2*s, lower: m - 2*s};
           }
-          const rsi = rsiFromCloses(closes,14);
-          // Simple signal rules:
-          let signal = 'hold', comment='';
-          if(rsi !== null && slope !== null){
-            if(rsi < 35 && slope > 0.25) { signal='buy'; comment='Oversold + rising SMA'; }
-            else if(rsi > 70 && slope < -0.25){ signal='sell'; comment='Overbought + falling SMA'; }
-            else if(pctChange > 2 && slope > 0.5){ signal='buy'; comment='Strong short-term momentum'; }
-            else if(pctChange < -3 && slope < -0.5){ signal='sell'; comment='Strong drop + downtrend'; }
-            else comment = 'Няма силен сигнал';
-          } else {
-            comment = 'Недостатъчно данни';
-          }
-          return {
-            name: item.name,
-            symbol: item.symbol,
-            binanceSymbol: item.binanceSymbol,
+          const macdLast = macdRes ? macdRes.macdLast : null;
+          const signalLast = macdRes ? macdRes.signalLast : null;
+
+          // derive signals
+          const {flags, pct} = deriveSignalsFromTA(lastClose, closes, {rsiVal, macdLast, signalLast, bb});
+          const expected = expectedChangeFromFlags(flags, pct);
+          // buy/sell/support/resistance using recent high/low and expected change
+          const support = (lows.slice(-20).reduce((a,b)=>Math.min(a,b), Infinity) === Infinity) ? (lastClose*0.98) : lows.slice(-20).reduce((a,b)=>Math.min(a,b), lastClose);
+          const resistance = (highs.slice(-20).reduce((a,b)=>Math.max(a,b), -Infinity) === -Infinity) ? (lastClose*1.02) : highs.slice(-20).reduce((a,b)=>Math.max(a,b), lastClose);
+          const buy = Math.min(lastClose*0.995, support*1.01);
+          const sell = Math.max(lastClose*1.01, resistance*0.99);
+          const expPrice = lastClose*(1+expected/100);
+
+          results.push({
+            name: item.name + ' (' + item.symbol.toUpperCase() + ')',
+            symbol: item.symbol.toUpperCase(),
+            binance: item.binance,
             price: lastClose,
-            pctChange: pctChange,
-            smaSlope: slope,
-            rsi: rsi,
-            signal: signal,
-            comment: comment
-          };
-        } catch(e){
-          return {name:item.name,symbol:item.symbol,binanceSymbol:item.binanceSymbol, error: String(e)};
+            pctCandle,
+            rsi: rsiVal,
+            macd: macdLast,
+            signal: signalLast,
+            bb,
+            flags,
+            expectedChange: expected,
+            expPrice,
+            buy, sell, support, resistance,
+            comment: commentFromFlags(flags)
+          });
+        } catch(err){
+          // push an object with error so render can skip gracefully
+          results.push({ name: item.name + ' (' + item.symbol.toUpperCase() + ')', symbol: item.symbol.toUpperCase(), error: String(err) });
         }
-      });
-      const batchRes = await Promise.all(promises);
-      results.push(...batchRes);
-      const p = Math.min(100, Math.round((results.length/total)*100));
-      progressEl.style.width = p + '%';
-      statusEl.textContent = `Обработени ${results.length}/${total}...`;
-      // small pause to be polite
-      await new Promise(res=>setTimeout(res, 350));
+        const percent = Math.round((results.length/total)*80) + 16; // map progress between 16%..96%
+        el.progress.style.width = percent + '%';
+        el.status.textContent = `Обработени ${results.length}/${total}...`;
+        // polite pause to avoid bursts
+        await new Promise(r=>setTimeout(r, 150));
+      }
     }
 
-    // store and render
-    window.lastResults = results.filter(r=>!r.error);
-    statusEl.textContent = `Готово — обработени ${window.lastResults.length} монети (от ${total}).`;
-    progressEl.style.width = '100%';
-    // apply sort
-    renderTable(window.lastResults);
-    populateTopLists(window.lastResults);
-  } catch(err){
-    console.error(err);
-    statusEl.textContent = 'Грешка при зареждане: ' + (err.message || err);
-    tbody.innerHTML = '<tr><td colspan="7" class="muted">Грешка при сваляне на данни. Гледай конзолата за подробности.</td></tr>';
-    progressEl.style.width = '0%';
+    // start workers
+    const workers = [];
+    for(let i=0;i<concurrency;i++) workers.push(worker());
+    await Promise.all(workers);
+    // store results
+    ROWS = results.filter(r => !r.error);
+    lastFetchedAt = new Date();
+    el.last.textContent = 'Обновено: ' + lastFetchedAt.toLocaleString();
+    el.progress.style.width = '100%';
+    el.status.textContent = 'Готово. Рендиране...';
+    render();
+  } catch(e){
+    console.error(e);
+    el.status.textContent = 'Грешка: ' + (e.message || e);
+    el.progress.style.width = '0%';
   }
 }
 
-function renderTable(data){
-  // sort according to select
-  const sort = sortSelect.value;
-  let sorted = data.slice();
-  if(sort === 'exp') sorted.sort((a,b)=> (b.pctChange||0) - (a.pctChange||0));
-  else if(sort === 'price') sorted.sort((a,b)=> (b.price||0) - (a.price||0));
-  else if(sort === 'name') sorted.sort((a,b)=> a.name.localeCompare(b.name));
-  // render first 200 rows max
-  const rows = sorted.slice(0,200).map(r=>{
-    const price = r.price!==undefined ? toFixedNum(r.price,6) : '—';
-    const pct = r.pctChange!==undefined ? toFixedNum(r.pctChange,2) + '%' : '—';
-    const slope = r.smaSlope!==null && r.smaSlope!==undefined ? toFixedNum(r.smaSlope,3) + '%' : '—';
-    const rsi = r.rsi!==null && r.rsi!==undefined ? toFixedNum(r.rsi,2) : '—';
-    const pillClass = r.signal === 'buy' ? 'buy' : (r.signal==='sell' ? 'sell' : 'hold');
-    return `<tr>
-      <td><strong>${r.symbol}</strong> <div class="muted">${r.name}<div></td>
-      <td>${price}</td>
-      <td>${pct}</td>
-      <td><span class="pill ${pillClass}">${r.signal.toUpperCase()}</span></td>
-      <td>${slope}</td>
-      <td>${rsi}</td>
-      <td class="muted">${r.comment || ''}</td>
-    </tr>`;
-  }).join('');
-  tbody.innerHTML = rows || '<tr><td colspan="7" class="muted">Няма резултати.</td></tr>';
-}
+// Render function: search, sort, table populate, top lists
+function render(){
+  const q = (el.search.value || '').toLowerCase();
+  let f = ROWS.filter(r => !q || (r.name && r.name.toLowerCase().includes(q)) || (r.symbol && r.symbol.toLowerCase().includes(q)));
+  const key = el.sortBy.value;
+  f.sort((a,b) => {
+    if(key === 'name') return (a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase());
+    if(key === 'price') return (b.price||0) - (a.price||0);
+    return (b.expectedChange||0) - (a.expectedChange||0);
+  });
 
-// top lists simple
-function populateTopLists(results){
-  const up = results.slice().sort((a,b)=> (b.pctChange||0)-(a.pctChange||0)).slice(0,5);
-  const down = results.slice().sort((a,b)=> (a.pctChange||0)-(b.pctChange||0)).slice(0,5);
-  const upHtml = up.map(r=>`${r.symbol} <span class="muted">${toFixedNum(r.pctChange,2)}%</span>`).join('<br>');
-  const downHtml = down.map(r=>`${r.symbol} <span class="muted">${toFixedNum(r.pctChange,2)}%</span>`).join('<br>');
-  document.getElementById('top5-up').innerHTML = `<strong>Топ 5 възходящи</strong><br>${upHtml}<hr style="border:none;border-top:1px dashed rgba(255,255,255,0.04)"><strong>Топ 5 низходящи</strong><br>${downHtml}`;
+  // render rows
+  el.tbody.innerHTML = '';
+  f.forEach(r => {
+    const changeClass = (r.expectedChange >= 0) ? 'green' : 'red';
+    const rsiTxt = r.rsi !== null ? toFixed(r.rsi,2) : '—';
+    const macdTxt = r.macd !== null ? toFixed(r.macd,4) : '—';
+    const bbPos = r.bb ? (r.price > r.bb.upper ? 'Above' : (r.price < r.bb.lower ? 'Below' : 'Middle')) : '—';
+    el.tbody.insertAdjacentHTML('beforeend', `
+      <tr>
+        <td style="text-align:left"><strong>${r.symbol}</strong><div class="small" style="color:var(--muted)">${r.name}</div></td>
+        <td>${toFixed(r.price,4)}</td>
+        <td class="mono ${r.pctCandle>=0?'green':'red'}">${toFixed(r.pctCandle,2)}%</td>
+        <td>${rsiTxt}</td>
+        <td>${macdTxt}</td>
+        <td>${bbPos}</td>
+        <td class="mono ${changeClass}">${toFixed(r.expectedChange,2)}%</td>
+        <td>${toFixed(r.expPrice,4)}</td>
+        <td>${toFixed(r.buy,4)}</td>
+        <td>${toFixed(r.sell,4)}</td>
+        <td class="comment">${escapeHtml(r.comment)}</td>
+      </tr>
+    `);
+  });
+
+  el.status.style.display = 'none';
+  el.table.style.display = (f.length>0) ? 'table' : 'none';
+
+  // top lists
+  const sortedByExp = [...ROWS].sort((a,b)=> (b.expectedChange||0) - (a.expectedChange||0));
+  const topBull = sortedByExp.slice(0,5);
+  const topBear = sortedByExp.slice(-5).reverse();
+  el.topBull.innerHTML = topBull.map(r => `<li class="pos">${r.name}: ${toFixed(r.expectedChange,2)}%</li>`).join('');
+  el.topBear.innerHTML = topBear.map(r => `<li class="neg">${r.name}: ${toFixed(r.expectedChange,2)}%</li>`).join('');
 }
 
 // CSV export
-function exportCSV(){
-  if(!window.lastResults || window.lastResults.length===0){
-    alert('Няма данни за експорт — направи анализ първо.');
-    return;
-  }
-  const rows = [
-    ['symbol','name','binanceSymbol','price','pctChange','smaSlope','rsi','signal','comment']
-  ];
-  for(const r of window.lastResults){
-    rows.push([
-      r.symbol, r.name, r.binanceSymbol || '', r.price || '', r.pctChange || '', r.smaSlope || '', r.rsi || '', r.signal || '', (r.comment||'').replace(/[\n\r,]+/g,' ')
-    ]);
-  }
-  const csv = rows.map(r => r.map(cell=> `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `screener_${currentTF}_${(new Date()).toISOString().slice(0,19)}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+function toCSV(rows){
+  const headers = ['Name','Symbol','Binance','Price','PctCandle','RSI','MACD','BBpos','ExpectedChange%','ExpPrice','Buy','Sell','Support','Resistance','Comment'];
+  const lines = [headers.join(',')];
+  rows.forEach(r => {
+    lines.push([
+      csvSafe(r.name),
+      r.symbol,
+      r.binance,
+      toFixed(r.price,6),
+      toFixed(r.pctCandle,4),
+      r.rsi !== null ? toFixed(r.rsi,4) : '',
+      r.macd !== null ? toFixed(r.macd,6) : '',
+      r.bb ? (r.price > r.bb.upper ? 'above' : (r.price < r.bb.lower ? 'below' : 'middle')) : '',
+      toFixed(r.expectedChange,4),
+      toFixed(r.expPrice,6),
+      toFixed(r.buy,6),
+      toFixed(r.sell,6),
+      toFixed(r.support,6),
+      toFixed(r.resistance,6),
+      `"${(r.comment||'').replaceAll('"','""')}"`
+    ].join(','));
+  });
+  return lines.join('\n');
 }
+function csvSafe(s){ return `"${String(s||'').replaceAll('"','""')}"`; }
+function escapeHtml(s){ if(!s) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
-// auto-start if user wants: (disabled by default)
-// startAnalysis();
+// UI wiring
+el.reload.addEventListener('click', ()=> load(100));
+el.load200.addEventListener('click', ()=> load(200));
+el.download.addEventListener('click', ()=>{
+  if(!ROWS || ROWS.length===0){ alert('Няма данни — направете зареждане първо.'); return; }
+  const csv = toCSV(ROWS);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = `screener_ta_${el.timeframe.value}_${(new Date()).toISOString().slice(0,19)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+});
+el.search.addEventListener('input', render);
+el.sortBy.addEventListener('change', render);
+el.timeframe.addEventListener('change', ()=> { /* auto-reload on timeframe change */ if(confirm('Смяна на timeframe, искате ли да презаредите данните с новия timeframe?')) load(ROWS.length>150?200:100); });
+
+// initial small helper: load default 100 on first open
+// but do not auto-run if user wants to click — we'll auto-run to be friendly
+load(100);
 
 </script>
 </body>
