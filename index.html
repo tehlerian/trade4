@@ -1,52 +1,54 @@
 <!doctype html>
 <html lang="bg">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Crypto Screener — Real TA (RSI/MACD/BB/ATR/VWAP/EMA)</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Crypto Screener — Real TA (30m/1h/4h/24h)</title>
 <style>
-:root{
-  --bg:#0f1115;--card:#161a22;--text:#e6e6e6;--muted:#a3a3a3;
-  --pos:#22c55e;--neg:#ef4444;--accent:#60a5fa;--warn:#f59e0b;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
-header{padding:14px;display:flex;gap:12px;align-items:center;justify-content:space-between;background:#0b0f14;position:fixed;top:0;left:0;right:0; z-index:100;;border-bottom:1px solid #202635}
-h1{margin:0;font-size:18px}
-.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-button,select,input{background:var(--card);color:var(--text);border:1px solid #2a3142;padding:8px 10px;border-radius:8px}
-.badge{padding:4px 8px;border-radius:999px;border:1px solid #2a3142;color:var(--muted);font-size:13px}
-main{padding-top:80px;}
-.summary{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap}
-.card{background:var(--card);border:1px solid #202635;padding:10px;border-radius:10px;min-width:220px}
-.card h3{margin:0 0 8px;color:var(--muted);font-size:13px}
-.table-wrap{background:var(--card);border:1px solid #202635;border-radius:10px;overflow:auto}
-.table-container{overflow:auto}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:1200px}
-thead th{ background:#121722;position:sticky;top:0; /* вместо 62px */ z-index:5;}
-th,td{padding:8px;border-bottom:1px solid #202635;text-align:center;vertical-align:middle}
-tbody tr:hover{background:#101722}
-.small{font-size:12px;color:var(--muted)}
-.green{color:var(--pos);font-weight:700}
-.red{color:var(--neg);font-weight:700}
-.warn{color:var(--warn);font-weight:700}
-.mono{font-variant-numeric:tabular-nums}
-.comment{ text-align:left;color:var(--muted);max-width:320px}
-.signal-icon{font-size:18px}
-#progressWrap{background:rgba(255,255,255,0.03);border-radius:8px;padding:4px;min-width:220px}
-#progress{height:8px;border-radius:6px;background:linear-gradient(90deg,var(--accent),#00b39f);width:0%;transition:width .25s}
-@media (max-width:980px){
-  table{min-width:900px;font-size:12px}
-  thead th{top:0}
-}
+  :root{--bg:#0f1115;--card:#161a22;--text:#e6e6e6;--muted:#a3a3a3;--pos:#22c55e;--neg:#ef4444;--accent:#60a5fa}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;background:var(--bg);color:var(--text)}
+  header{padding:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;background:#0c0f14;position:sticky;top:0;z-index:20;border-bottom:1px solid #202635}
+  h1{font-size:18px;margin:0;font-weight:600}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  button, select, input{background:var(--card);color:var(--text);border:1px solid #2a3142;border-radius:10px;padding:8px 10px;font-size:13px}
+  button:hover{cursor:pointer;border-color:#3a445a}
+  .badge{padding:4px 8px;border-radius:999px;font-size:12px;border:1px solid #2a3142;color:var(--muted)}
+  main{padding:16px}
+  .summary{margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{background:var(--card);border:1px solid #202635;border-radius:12px;padding:12px}
+  .card h3{margin:0 0 8px;font-size:13px;color:var(--muted)}
+  ul{list-style:none;margin:0;padding:0}
+  li{padding:4px 0;font-size:13px}
+  .pos{color:var(--pos)}
+  .neg{color:var(--neg)}
+  .table-wrap{background:var(--card);border:1px solid #202635;border-radius:12px;overflow:hidden}
+  .table-container{overflow:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:1000px}
+  thead th{background:#121722;position:sticky;top:62px;z-index:5;padding:10px;text-align:center}
+  th,td{padding:10px;border-bottom:1px solid #202635;text-align:center;vertical-align:middle}
+  tbody tr:hover{background:#121621}
+  .green{color:var(--pos);font-weight:700}
+  .red{color:var(--neg);font-weight:700}
+  .mono{font-variant-numeric:tabular-nums}
+  .comment{ text-align:left;color:var(--muted);max-width:320px }
+  .loading{padding:24px;text-align:center;color:var(--muted)}
+  .small{font-size:12px;color:var(--muted)}
+  #progressWrap{background:rgba(255,255,255,0.03);border-radius:8px;padding:6px;margin-left:8px;min-width:220px}
+  #progress{height:8px;background:linear-gradient(90deg,var(--accent),#00b39f);border-radius:6px;width:0%;transition:width .2s}
+  @media (max-width:980px){
+    .desktop-only{display:none}
+    table{font-size:12px;min-width:900px}
+    .summary{grid-template-columns:1fr}
+    thead th{top:56px}
+  }
 </style>
 </head>
 <body>
 <header>
   <div style="display:flex;gap:12px;align-items:center">
-    <h1>Crypto Screener — Real TA</h1>
-    <span class="small" style="color:var(--muted)">Timeframe:</span>
-    <select id="timeframe" title="Timeframe">
+    <h1>Технически анализ — Top 100/200 (Binance klines + Real TA)</h1>
+    <span class="small" style="margin-left:8px;color:var(--muted)">Timeframe:</span>
+    <select id="timeframe" title="Избери timeframe">
       <option value="30m">30m</option>
       <option value="1h" selected>1h</option>
       <option value="4h">4h</option>
@@ -55,14 +57,13 @@ tbody tr:hover{background:#101722}
   </div>
 
   <div class="controls">
-    <span class="badge" id="lastUpdated">Готов</span>
+    <span class="badge" id="lastUpdated">Обновяване…</span>
     <select id="sortBy">
-      <option value="expected">Сортирай: очаквана промяна ↓</option>
-      <option value="price">Сортирай: цена ↓</option>
-      <option value="signal">Сортирай: сигнал (BUY→SELL)</option>
-      <option value="name">Сортирай: име A→Z</option>
+      <option value="change">Сортирай по очаквана промяна ↓</option>
+      <option value="price">Сортирай по цена ↓</option>
+      <option value="name">Сортирай по име A→Z</option>
     </select>
-    <input id="search" placeholder="Търси (имe или символ)..." />
+    <input id="search" placeholder="Търси (име или символ)..." />
     <button id="download">Свали CSV</button>
     <button id="reload">Презареди</button>
     <button id="load200">Зареди топ 200</button>
@@ -73,58 +74,48 @@ tbody tr:hover{background:#101722}
 <main>
   <div class="summary">
     <div class="card">
-      <h3>Топ 5 Bull (по очаквана промяна)</h3>
-      <div id="topBull" class="small">—</div>
+      <h3>Топ 5 възходящи</h3>
+      <ul id="topBull"></ul>
     </div>
     <div class="card">
-      <h3>Топ 5 Bear</h3>
-      <div id="topBear" class="small">—</div>
-    </div>
-    <div class="card">
-      <h3>Нови силни сигнали</h3>
-      <div id="freshSignals" class="small">—</div>
+      <h3>Топ 5 низходящи</h3>
+      <ul id="topBear"></ul>
     </div>
   </div>
 
   <div class="table-wrap">
-    <div id="status" class="small" style="padding:12px;text-align:center;color:var(--muted)">Натисни "Презареди" или "Зареди топ 200" за да започнеш.</div>
+    <div id="status" class="loading">Готов за зареждане. Избери timeframe и натисни "Презареди" или "Зареди топ 200".</div>
     <div class="table-container">
       <table id="table" style="display:none">
         <thead>
           <tr>
             <th>Валута</th>
-            <th>Цена(USDT)</th>
+            <th>Цена (USDT)</th>
             <th>Δ% (посл. candle)</th>
             <th>RSI(14)</th>
             <th>MACD</th>
-            <th>EMA Cross</th>
-            <th>ATR(14)</th>
-            <th>VWAP Dev</th>
-            <th>Support</th>
-            <th>Resistance</th>
+            <th>BB pos</th>
+            <th>Очаквана промяна %</th>
+            <th>Очаквана цена</th>
             <th>Buy</th>
             <th>Sell</th>
-            <th>Сигнал</th>
+            <th>Коментар</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
     </div>
   </div>
-  <div style="margin-top:10px" class="small" id="note">API: CoinGecko (top list) + Binance (klines). Ако срещнеш rate limits — използвай proxy/caching.</div>
+  <div class="small" style="margin-top:8px;color:var(--muted)">API: CoinGecko (top list) + Binance (klines). Хостинг: GitHub Pages (static).</div>
 </main>
 
 <script>
 /*
-Full single-file screener:
-- Top list from CoinGecko (100/200)
-- Map to Binance symbols (USDT/BUSD)
-- Fetch klines (interval based on timeframe)
-- Compute RSI(14), EMA(12/26), MACD(12,26,9), Bollinger(20,2), ATR(14), VWAP (N=20)
-- Detect EMA crossover (last two points)
-- Compute support/resistance (min low / max high last 20)
-- Build signal logic & UI rendering with icons
-- Concurrency-limited fetches and progress updates
+  Single-file screener using CoinGecko + Binance klines
+  - Timeframes: 30m, 1h, 4h, 1d
+  - Indicators: RSI(14), EMA(12/26), MACD(12,26,9), Bollinger Bands(20,2)
+  - Concurrency-limited fetching & batching to avoid rate limits
+  - Output: table with signals, CSV export
 */
 
 const el = {
@@ -139,26 +130,24 @@ const el = {
   last: document.getElementById('lastUpdated'),
   topBull: document.getElementById('topBull'),
   topBear: document.getElementById('topBear'),
-  fresh: document.getElementById('freshSignals'),
   timeframe: document.getElementById('timeframe'),
   progress: document.getElementById('progress')
 };
 
 let ROWS = [];
-let lastFetched = null;
+let lastFetchedAt = null;
 
-// numeric helpers
-const toFixed = (v, d=4) => Number.isFinite(v) ? Number(v).toFixed(d) : '—';
-const pct = (a,b) => (b? (a-b)/b*100 : 0);
+// Helpers: numeric
+const toFixed = (n, d=4) => (Number.isFinite(n) ? Number(n).toFixed(d) : '—');
 
-// fetch with retry
+// Fetch helpers with retry
 async function fetchJSON(url, tries=3){
   try{
     const r = await fetch(url);
     if(!r.ok) throw new Error('HTTP '+r.status);
     return await r.json();
   } catch(e){
-    if(tries>1){ await new Promise(r=>setTimeout(r,400)); return fetchJSON(url, tries-1); }
+    if(tries>1){ await new Promise(r=>setTimeout(r,400)); return fetchJSON(url,tries-1); }
     throw e;
   }
 }
@@ -171,7 +160,7 @@ function sma(arr, period){
   for(let i=0;i<arr.length;i++){
     sum += arr[i];
     if(i>=period) sum -= arr[i-period];
-    if(i>=period-1) res.push(sum/period);
+    if(i >= period-1) res.push(sum/period);
   }
   return res;
 }
@@ -181,7 +170,7 @@ function stddev(arr, period){
   for(let i=0;i<=arr.length-period;i++){
     const slice = arr.slice(i,i+period);
     const mean = slice.reduce((a,b)=>a+b,0)/period;
-    const variance = slice.reduce((a,b)=>a+(b-mean)**2,0)/period;
+    const variance = slice.reduce((a,b)=>a + (b-mean)**2,0)/period;
     res.push(Math.sqrt(variance));
   }
   return res;
@@ -190,10 +179,8 @@ function ema(arr, period){
   if(arr.length < period) return null;
   const k = 2/(period+1);
   const res = [];
-  // initial SMA as seed
-  let seed = arr.slice(0,period).reduce((a,b)=>a+b,0)/period;
-  res.push(seed);
-  let prev = seed;
+  let prev = arr.slice(0,period).reduce((a,b)=>a+b,0)/period;
+  res.push(prev);
   for(let i=period;i<arr.length;i++){
     const cur = arr[i]*k + prev*(1-k);
     res.push(cur);
@@ -223,7 +210,8 @@ function macdVals(closes, fast=12, slow=26, signal=9){
   const emaFast = ema(closes, fast);
   const emaSlow = ema(closes, slow);
   if(!emaFast || !emaSlow) return null;
-  // align
+  // align: emaFast length = closes.length - fast +1, emaSlow = closes.length - slow +1
+  // compute MACD series where both exist: start index = (slow - fast)
   const startOffset = slow - fast;
   const macd = [];
   for(let i=0;i<emaSlow.length;i++){
@@ -233,262 +221,195 @@ function macdVals(closes, fast=12, slow=26, signal=9){
   }
   const signalLine = ema(macd, signal);
   if(!signalLine) return null;
+  // macd and signalLine aligned: signalLine corresponds to macd indices starting at signal-1
+  // We'll return last macd and last signal
   const macdLast = macd[macd.length - 1];
   const signalLast = signalLine[signalLine.length - 1];
   return {macdSeries:macd, signalSeries:signalLine, macdLast, signalLast};
 }
-function atr(highs, lows, closes, period=14){
-  if(highs.length < period+1) return null;
-  const trs = [];
-  for(let i=0;i<highs.length;i++){
-    if(i===0) { trs.push(highs[i]-lows[i]); continue; }
-    const tr = Math.max(highs[i]-lows[i], Math.abs(highs[i]-closes[i-1]), Math.abs(lows[i]-closes[i-1]));
-    trs.push(tr);
-  }
-  // simple SMA of TRs for ATR
-  if(trs.length < period) return null;
-  const res = [];
-  let sum = 0;
-  for(let i=0;i<trs.length;i++){
-    sum += trs[i];
-    if(i>=period) sum -= trs[i-period];
-    if(i >= period-1) res.push(sum/period);
-  }
-  return res; // aligned: last value is latest ATR
-}
-function computeVWAP(closes, volumes, period=20){
-  // VWAP over 'period' bars: sum(price*vol)/sum(vol)
-  if(closes.length < period || volumes.length < period) return null;
-  const sliceC = closes.slice(-period);
-  const sliceV = volumes.slice(-period);
-  let pv = 0, vSum = 0;
-  for(let i=0;i<period;i++){
-    pv += sliceC[i] * sliceV[i];
-    vSum += sliceV[i];
-  }
-  return vSum ? pv / vSum : null;
-}
 
-function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
-
-// Map CoinGecko -> Binance symbols set
+// Map CoinGecko -> Binance symbol (try USDT, then BUSD)
 async function getBinanceSymbolsSet(){
   const info = await fetchJSON('https://api.binance.com/api/v3/exchangeInfo');
   const symbols = new Set(info.symbols.map(s => s.symbol));
   return symbols;
 }
 
-// derive flags & signal
-function deriveFromIndicators(lastPrice, closes, highs, lows, volumes, indicators){
-  // indicators: rsiVal, macdLast, signalLast, bb {upper,middle,lower}, atrVal, vwap
+// Compute signals based on indicators
+function deriveSignalsFromTA(lastClose, closes, indicators){
+  // indicators: { rsiVal, macdLast, signalLast, bb: {upper, middle, lower} }
   const flags = {};
-  flags.rsiOversold = indicators.rsiVal !== null && indicators.rsiVal < 35;
-  flags.rsiOverbought = indicators.rsiVal !== null && indicators.rsiVal > 70;
+  // RSI flag
+  flags.rsiBull = indicators.rsiVal !== null && indicators.rsiVal < 35; // oversold
+  flags.rsiBear = indicators.rsiVal !== null && indicators.rsiVal > 70; // overbought
+  // MACD flag
   flags.macdBull = indicators.macdLast !== null && indicators.signalLast !== null && indicators.macdLast > indicators.signalLast;
   flags.macdBear = indicators.macdLast !== null && indicators.signalLast !== null && indicators.macdLast < indicators.signalLast;
-  // EMA cross detection (we compute separately in main loop)
   // BB position
-  flags.aboveBB = indicators.bb && lastPrice > indicators.bb.upper;
-  flags.belowBB = indicators.bb && lastPrice < indicators.bb.lower;
-  // ATR relative: ATR as % of price
-  flags.atrPct = indicators.atrVal !== null ? (indicators.atrVal / lastPrice) * 100 : null;
-  // VWAP deviation %
-  flags.vwapDev = indicators.vwap !== null ? ( (lastPrice - indicators.vwap) / indicators.vwap * 100 ) : null;
-  // short momentum
-  const prev = closes[closes.length-2] || closes[closes.length-1];
-  const pctCandle = prev ? (lastPrice - prev)/prev*100 : 0;
-  flags.pctCandle = pctCandle;
-
-  // Build composite decision:
-  // Rules (example):
-  // Strong BUY if: emaBullCross (recent), macdBull, not aboveBB, vwapDev not massively positive
-  // Strong SELL if: emaBearCross, macdBear, aboveBB or vwapDev >> +X
-  return flags;
+  flags.bbUpper = indicators.bb && lastClose > indicators.bb.upper;
+  flags.bbMiddle = indicators.bb && Math.abs(lastClose - indicators.bb.middle) < (indicators.bb.upper - indicators.bb.middle)*0.1;
+  flags.bbLower = indicators.bb && lastClose < indicators.bb.lower;
+  // momentum short-term: compare last candle relative change
+  const last = closes[closes.length-1], prev = closes[closes.length-2] || closes[closes.length-1];
+  const pct = prev ? (last - prev)/prev*100 : 0;
+  flags.momentumUp = pct > 1.0;
+  flags.momentumDown = pct < -1.5;
+  return {flags, pct};
 }
 
-// decide signal text/icon
-function decideSignal(emaCross, flags){
-  // emaCross: 'bull' | 'bear' | 'none' (recent cross)
-  // flags: as from deriveFromIndicators
-  let score = 0;
-  if(emaCross === 'bull') score += 2;
-  if(emaCross === 'bear') score -= 2;
-  if(flags.macdBull) score += 1.5;
-  if(flags.macdBear) score -= 1.5;
-  if(flags.rsiOversold) score += 1;
-  if(flags.rsiOverbought) score -= 1;
-  if(flags.aboveBB) score -= 1.2;
-  if(flags.belowBB) score += 1.0;
-  if(flags.pctCandle > 2) score += 0.8;
-  if(flags.pctCandle < -3) score -= 0.8;
-  // VWAP extreme penalties
-  if(flags.vwapDev !== null){
-    if(flags.vwapDev > 4) score -= 1.5; // strongly overextended above VWAP
-    if(flags.vwapDev < -4) score += 1.0; // undervalued vs VWAP
-  }
-  // ATR large reduces confidence slightly (higher risk)
-  if(flags.atrPct !== null && flags.atrPct > 10) score -= 0.5;
-
-  // Thresholds
-  if(score >= 2.2) return {signal:'BUY',icon:'🟢⬆',score};
-  if(score <= -2.2) return {signal:'SELL',icon:'🔴⬇',score};
-  return {signal:'NEUTRAL',icon:'⚪️–',score};
+// Expected change scoring: combine flags into % score
+function expectedChangeFromFlags(flags, pctShort){
+  let pts = 0;
+  if(flags.rsiBull) pts += 2;
+  if(flags.rsiBear) pts -= 2;
+  if(flags.macdBull) pts += 1.5;
+  if(flags.macdBear) pts -= 1.5;
+  if(flags.bbUpper) pts += 1.5;
+  if(flags.bbLower) pts -= 1.5;
+  if(flags.momentumUp) pts += 1;
+  if(flags.momentumDown) pts -= 1.2;
+  pts += clamp(pctShort * 0.2, -3, 3); // small contribution from immediate candle
+  return clamp(pts, -20, 20);
 }
 
-// Main loader
+function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+// Build comment text
+function commentFromFlags(flags){
+  const bits = [];
+  if(flags.macdBull) bits.push('MACD bullish');
+  if(flags.rsiBull) bits.push('RSI oversold -> rebound');
+  if(flags.bbUpper) bits.push('Above BB upper');
+  if(flags.momentumUp) bits.push('Short momentum');
+  if(flags.macdBear) bits.push('MACD bearish');
+  if(flags.rsiBear) bits.push('RSI overbought');
+  if(flags.bbLower) bits.push('Below BB lower');
+  return bits.length ? bits.slice(0,3).join('; ') : 'Neutral';
+}
+
+// Main load flow
 async function load(limit=100){
-  el.progress.style.width = '3%';
-  el.status.textContent = 'Зареждане: взимам топ list...'; el.table.style.display = 'none';
+  el.progress.style.width = '2%';
+  el.status.style.display = 'block';
+  el.table.style.display = 'none';
+  el.status.textContent = 'Зареждане: взимане на списък с монети от CoinGecko...';
   try{
     const timeframe = el.timeframe.value; // '30m','1h','4h','1d'
     const per_page = limit;
     const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${per_page}&page=1&sparkline=false`;
     const coins = await fetchJSON(url);
-    el.status.textContent = `Намерени ${coins.length} монети. Зареждам Binance symbols...`; el.progress.style.width = '8%';
+    el.status.textContent = `Намерени ${coins.length} монети. Зареждам Binance symbols...`;
+    el.progress.style.width = '8%';
 
     const symbolsSet = await getBinanceSymbolsSet();
     el.progress.style.width = '12%';
+    // Map coins -> binance symbols attempts
     const mapped = coins.map(c => {
-      const sym = (c.symbol||'').toUpperCase();
+      const sym = (c.symbol || '').toUpperCase();
       const try1 = sym + 'USDT';
       const try2 = sym + 'BUSD';
       if(symbolsSet.has(try1)) return {...c, binance: try1};
       if(symbolsSet.has(try2)) return {...c, binance: try2};
+      // handle special cases: some tokens have suffixes (e.g., 'WBTC' vs 'BTC')
       return {...c, binance: null};
     });
 
+    // Filter to those with binance symbol; keep originals without mapping for info
     const toProcess = mapped.filter(m => m.binance);
     if(toProcess.length === 0){
-      el.status.textContent = 'Няма намерени Binance markets (USDT/BUSD).'; return;
+      el.status.textContent = 'Няма съвпадения с Binance trading pairs. Мапингът не намери USDT/BUSD пазари.';
+      return;
     }
+    el.status.textContent = `Ще обработя ${toProcess.length} монети (mapped to Binance). Изтеглям klines за timeframe ${timeframe}...`;
+    el.progress.style.width = '16%';
 
-    el.status.textContent = `Ще обработя ${toProcess.length} монети. Свалям klines (${timeframe})...`; el.progress.style.width = '16%';
-
+    // concurrency control
     const concurrency = 6;
     const results = [];
     let idx = 0;
     const total = toProcess.length;
+    // helper to fetch klines for a symbol
     const intervalMap = {'30m':'30m','1h':'1h','4h':'4h','1d':'1d'};
-    const klimit = 400; // number of candles to retrieve (sufficient for indicators)
+    const limitK = 300; // candles; usually enough for indicators
     async function worker(){
       while(true){
         const i = idx++;
         if(i >= total) break;
         const item = toProcess[i];
-        try{
-          const klinesUrl = `https://api.binance.com/api/v3/klines?symbol=${item.binance}&interval=${intervalMap[timeframe]}&limit=${klimit}`;
-          const kl = await fetchJSON(klinesUrl).catch(e => { throw new Error('klines '+e.message); });
+        try {
+          const klinesUrl = `https://api.binance.com/api/v3/klines?symbol=${item.binance}&interval=${intervalMap[timeframe]}&limit=${limitK}`;
+          const kl = await fetchJSON(klinesUrl).catch(e => { throw new Error('klines error '+e.message); });
           if(!Array.isArray(kl) || kl.length===0) throw new Error('no klines');
           const closes = kl.map(k => Number(k[4]));
           const highs = kl.map(k => Number(k[2]));
           const lows = kl.map(k => Number(k[3]));
-          const vols  = kl.map(k => Number(k[5]));
           const lastClose = closes[closes.length-1];
           const prevClose = closes[closes.length-2] || lastClose;
           const pctCandle = prevClose ? (lastClose - prevClose)/prevClose*100 : 0;
 
-          // Indicators
+          // indicators
           const rsiVal = rsi(closes,14);
           const macdRes = macdVals(closes,12,26,9);
-          const macdLast = macdRes ? macdRes.macdLast : null;
-          const signalLast = macdRes ? macdRes.signalLast : null;
           const bbSma = sma(closes,20);
           const bbStd = stddev(closes,20);
           let bb = null;
           if(bbSma && bbStd){
             const m = bbSma[bbSma.length-1];
             const s = bbStd[bbStd.length-1];
-            bb = {middle:m,upper:m+2*s,lower:m-2*s};
+            bb = {middle: m, upper: m + 2*s, lower: m - 2*s};
           }
-          const atrSeries = atr(highs,lows,closes,14);
-          const atrVal = atrSeries ? atrSeries[atrSeries.length-1] : null;
-          const vwap = computeVWAP(closes, vols, 20);
-          const vwapDev = vwap ? (lastClose - vwap)/vwap*100 : null;
+          const macdLast = macdRes ? macdRes.macdLast : null;
+          const signalLast = macdRes ? macdRes.signalLast : null;
 
-          // EMA cross detection: compute ema12/ema26 and check last two values
-          const ema12 = ema(closes,12);
-          const ema26 = ema(closes,26);
-          let emaCross = 'none';
-          if(ema12 && ema26){
-            // align: ema12 length = closes.length - 12 +1, ema26 = closes.length -26 +1
-            // so offset = (ema12.length - ema26.length) = (26-12)=14 -> as earlier
-            const offset = 26 - 12;
-            // take last two points for cross detection (if available)
-            const idxEMA = ema26.length - 2;
-            if(idxEMA >= 0){
-              const ema12_prev = ema12[offset + idxEMA];
-              const ema26_prev = ema26[idxEMA];
-              const ema12_now = ema12[offset + idxEMA + 1];
-              const ema26_now = ema26[idxEMA + 1];
-              if(ema12_prev <= ema26_prev && ema12_now > ema26_now) emaCross = 'bull';
-              else if(ema12_prev >= ema26_prev && ema12_now < ema26_now) emaCross = 'bear';
-            } else {
-              // fallback: compare last values
-              const e12 = ema12[ema12.length-1];
-              const e26 = ema26[ema26.length-1];
-              if(e12 > e26) emaCross = 'bull';
-              else if(e12 < e26) emaCross = 'bear';
-            }
-          }
-
-          const flags = deriveFromIndicators(lastClose, closes, highs, lows, vols, {rsiVal, macdLast, signalLast, bb, atrVal, vwap});
-          const decision = decideSignal(emaCross, flags);
-
-          // support/resistance using last 20 bars
-          const look = 20;
-          const support = Math.min(...(lows.slice(-look)));
-          const resistance = Math.max(...(highs.slice(-look)));
-          const buyLevel = Math.min(lastClose*0.995, support*1.01);
-          const sellLevel = Math.max(lastClose*1.01, resistance*0.99);
-          const expectedPrice = lastClose * (1 + (decision.score?decision.score/100:0)); // small mapping to price; not a forecast
+          // derive signals
+          const {flags, pct} = deriveSignalsFromTA(lastClose, closes, {rsiVal, macdLast, signalLast, bb});
+          const expected = expectedChangeFromFlags(flags, pct);
+          // buy/sell/support/resistance using recent high/low and expected change
+          const support = (lows.slice(-20).reduce((a,b)=>Math.min(a,b), Infinity) === Infinity) ? (lastClose*0.98) : lows.slice(-20).reduce((a,b)=>Math.min(a,b), lastClose);
+          const resistance = (highs.slice(-20).reduce((a,b)=>Math.max(a,b), -Infinity) === -Infinity) ? (lastClose*1.02) : highs.slice(-20).reduce((a,b)=>Math.max(a,b), lastClose);
+          const buy = Math.min(lastClose*0.995, support*1.01);
+          const sell = Math.max(lastClose*1.01, resistance*0.99);
+          const expPrice = lastClose*(1+expected/100);
 
           results.push({
-            name: item.name + ' (' + (item.symbol||'').toUpperCase() + ')',
-            symbol: (item.symbol||'').toUpperCase(),
+            name: item.name + ' (' + item.symbol.toUpperCase() + ')',
+            symbol: item.symbol.toUpperCase(),
             binance: item.binance,
             price: lastClose,
             pctCandle,
             rsi: rsiVal,
             macd: macdLast,
-            macdSignal: signalLast,
-            emaCross,
-            atr: atrVal,
-            atrPct: atrVal? (atrVal/lastClose*100) : null,
-            vwap,
-            vwapDev,
-            support,
-            resistance,
-            buy: buyLevel,
-            sell: sellLevel,
-            signal: decision.signal,
-            signalIcon: decision.icon,
-            expectedChange: decision.score,
-            comment: buildComment(emaCross, flags, decision)
+            signal: signalLast,
+            bb,
+            flags,
+            expectedChange: expected,
+            expPrice,
+            buy, sell, support, resistance,
+            comment: commentFromFlags(flags)
           });
-
         } catch(err){
-          results.push({ name: item.name + ' (' + (item.symbol||'').toUpperCase() + ')', symbol: (item.symbol||'').toUpperCase(), error: String(err) });
+          // push an object with error so render can skip gracefully
+          results.push({ name: item.name + ' (' + item.symbol.toUpperCase() + ')', symbol: item.symbol.toUpperCase(), error: String(err) });
         }
-
-        const percent = Math.round((results.length/total)*85) + 15;
+        const percent = Math.round((results.length/total)*80) + 16; // map progress between 16%..96%
         el.progress.style.width = percent + '%';
         el.status.textContent = `Обработени ${results.length}/${total}...`;
         // polite pause to avoid bursts
-        await new Promise(r=>setTimeout(r, 200));
+        await new Promise(r=>setTimeout(r, 150));
       }
     }
 
+    // start workers
     const workers = [];
     for(let i=0;i<concurrency;i++) workers.push(worker());
     await Promise.all(workers);
-
+    // store results
     ROWS = results.filter(r => !r.error);
-    lastFetched = new Date();
-    el.last.textContent = 'Обновено: ' + lastFetched.toLocaleString();
+    lastFetchedAt = new Date();
+    el.last.textContent = 'Обновено: ' + lastFetchedAt.toLocaleString();
     el.progress.style.width = '100%';
-    el.status.textContent = 'Готово — рендиране...';
+    el.status.textContent = 'Готово. Рендиране...';
     render();
-
   } catch(e){
     console.error(e);
     el.status.textContent = 'Грешка: ' + (e.message || e);
@@ -496,55 +417,37 @@ async function load(limit=100){
   }
 }
 
-function buildComment(emaCross, flags, decision){
-  const bits = [];
-  if(emaCross === 'bull') bits.push('EMA Bull Cross');
-  if(emaCross === 'bear') bits.push('EMA Bear Cross');
-  if(flags.macdBull) bits.push('MACD Bull');
-  if(flags.macdBear) bits.push('MACD Bear');
-  if(flags.rsiOversold) bits.push('RSI Oversold');
-  if(flags.rsiOverbought) bits.push('RSI Overbought');
-  if(flags.aboveBB) bits.push('Above BB');
-  if(flags.belowBB) bits.push('Below BB');
-  if(flags.vwapDev !== null) bits.push('VWAPDev '+ (flags.vwapDev>0? '+' : '') + toFixed(flags.vwapDev,2) + '%');
-  return (bits.length? bits.slice(0,4).join('; ') : 'Neutral') + ` (score ${toFixed(decision.score,2)})`;
-}
-
-// rendering
+// Render function: search, sort, table populate, top lists
 function render(){
-  const q = (el.search.value||'').toLowerCase();
+  const q = (el.search.value || '').toLowerCase();
   let f = ROWS.filter(r => !q || (r.name && r.name.toLowerCase().includes(q)) || (r.symbol && r.symbol.toLowerCase().includes(q)));
   const key = el.sortBy.value;
   f.sort((a,b) => {
+    if(key === 'name') return (a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase());
     if(key === 'price') return (b.price||0) - (a.price||0);
-    if(key === 'signal') {
-      const score = s => (s.signal==='BUY'?1:(s.signal==='SELL'?-1:0));
-      return (score(b) - score(a)) || ((b.expectedChange||0) - (a.expectedChange||0));
-    }
-    if(key === 'name') return (a.name||'').localeCompare(b.name||'');
     return (b.expectedChange||0) - (a.expectedChange||0);
   });
 
+  // render rows
   el.tbody.innerHTML = '';
   f.forEach(r => {
-    const changeClass = (r.pctCandle >= 0) ? 'green' : 'red';
-    const rsiClass = r.rsi !== null ? (r.rsi > 70 ? 'red' : (r.rsi < 35 ? 'green' : '')) : '';
-    const vwapWarn = r.vwapDev !== null && Math.abs(r.vwapDev) >= 4 ? 'warn' : '';
+    const changeClass = (r.expectedChange >= 0) ? 'green' : 'red';
+    const rsiTxt = r.rsi !== null ? toFixed(r.rsi,2) : '—';
+    const macdTxt = r.macd !== null ? toFixed(r.macd,4) : '—';
+    const bbPos = r.bb ? (r.price > r.bb.upper ? 'Above' : (r.price < r.bb.lower ? 'Below' : 'Middle')) : '—';
     el.tbody.insertAdjacentHTML('beforeend', `
       <tr>
         <td style="text-align:left"><strong>${r.symbol}</strong><div class="small" style="color:var(--muted)">${r.name}</div></td>
         <td>${toFixed(r.price,4)}</td>
-        <td class="mono ${changeClass}">${toFixed(r.pctCandle,2)}%</td>
-        <td class="${rsiClass}">${r.rsi!==null ? toFixed(r.rsi,2) : '—'}</td>
-        <td>${r.macd!==null?toFixed(r.macd,6):'—'}</td>
-        <td class="${r.emaCross==='bull'?'green':(r.emaCross==='bear'?'red':'')}">${r.emaCross}</td>
-        <td>${r.atr!==null ? toFixed(r.atr,6) + ' (' + toFixed(r.atrPct,2) + '%)' : '—'}</td>
-        <td class="${vwapWarn}">${r.vwapDev!==null ? toFixed(r.vwapDev,2) + '%' : '—'}</td>
-        <td>${r.support!==undefined?toFixed(r.support,6):'—'}</td>
-        <td>${r.resistance!==undefined?toFixed(r.resistance,6):'—'}</td>
-        <td>${r.buy!==undefined?toFixed(r.buy,6):'—'}</td>
-        <td>${r.sell!==undefined?toFixed(r.sell,6):'—'}</td>
-        <td class="signal-icon">${r.signalIcon} <div class="small" style="color:var(--muted)">${escapeHtml(r.comment)}</div></td>
+        <td class="mono ${r.pctCandle>=0?'green':'red'}">${toFixed(r.pctCandle,2)}%</td>
+        <td>${rsiTxt}</td>
+        <td>${macdTxt}</td>
+        <td>${bbPos}</td>
+        <td class="mono ${changeClass}">${toFixed(r.expectedChange,2)}%</td>
+        <td>${toFixed(r.expPrice,4)}</td>
+        <td>${toFixed(r.buy,4)}</td>
+        <td>${toFixed(r.sell,4)}</td>
+        <td class="comment">${escapeHtml(r.comment)}</td>
       </tr>
     `);
   });
@@ -553,42 +456,46 @@ function render(){
   el.table.style.display = (f.length>0) ? 'table' : 'none';
 
   // top lists
-  const sorted = [...ROWS].sort((a,b)=> (b.expectedChange||0) - (a.expectedChange||0));
-  const topBull = sorted.slice(0,5);
-  const topBear = sorted.slice(-5).reverse();
-  el.topBull.innerHTML = topBull.map(r=>`${r.name}: ${toFixed(r.expectedChange,2)}%`).join('<br>');
-  el.topBear.innerHTML = topBear.map(r=>`${r.name}: ${toFixed(r.expectedChange,2)}%`).join('<br>');
-
-  // fresh signals: new buy/sell where EMA cross occurred recently (we used emaCross detection)
-  const fresh = ROWS.filter(r => (r.signal==='BUY' || r.signal==='SELL') && Math.abs(r.expectedChange) >= 2).slice(0,8);
-  el.fresh.innerHTML = fresh.length ? fresh.map(r=>`${r.symbol} ${r.signalIcon} ${toFixed(r.expectedChange,2)}%`).join('<br>') : '—';
+  const sortedByExp = [...ROWS].sort((a,b)=> (b.expectedChange||0) - (a.expectedChange||0));
+  const topBull = sortedByExp.slice(0,5);
+  const topBear = sortedByExp.slice(-5).reverse();
+  el.topBull.innerHTML = topBull.map(r => `<li class="pos">${r.name}: ${toFixed(r.expectedChange,2)}%</li>`).join('');
+  el.topBear.innerHTML = topBear.map(r => `<li class="neg">${r.name}: ${toFixed(r.expectedChange,2)}%</li>`).join('');
 }
 
 // CSV export
-function csvSafe(v){ return `"${String(v||'').replaceAll('"','""')}"`; }
 function toCSV(rows){
-  const headers = ['Name','Symbol','Binance','Price','PctCandle','RSI','MACD','EMAcross','ATR','ATR%','VWAPDev%','Support','Resistance','Buy','Sell','Signal','Comment'];
+  const headers = ['Name','Symbol','Binance','Price','PctCandle','RSI','MACD','BBpos','ExpectedChange%','ExpPrice','Buy','Sell','Support','Resistance','Comment'];
   const lines = [headers.join(',')];
   rows.forEach(r => {
     lines.push([
-      csvSafe(r.name), r.symbol, r.binance, toFixed(r.price,8), toFixed(r.pctCandle,6),
-      r.rsi!==null?toFixed(r.rsi,6):'', r.macd!==null?toFixed(r.macd,8):'', r.emaCross||'',
-      r.atr!==null?toFixed(r.atr,8):'', r.atrPct!==null?toFixed(r.atrPct,6):'', r.vwapDev!==null?toFixed(r.vwapDev,6):'',
-      r.support!==undefined?toFixed(r.support,8):'', r.resistance!==undefined?toFixed(r.resistance,8):'',
-      r.buy!==undefined?toFixed(r.buy,8):'', r.sell!==undefined?toFixed(r.sell,8):'', r.signal||'', csvSafe(r.comment)
+      csvSafe(r.name),
+      r.symbol,
+      r.binance,
+      toFixed(r.price,6),
+      toFixed(r.pctCandle,4),
+      r.rsi !== null ? toFixed(r.rsi,4) : '',
+      r.macd !== null ? toFixed(r.macd,6) : '',
+      r.bb ? (r.price > r.bb.upper ? 'above' : (r.price < r.bb.lower ? 'below' : 'middle')) : '',
+      toFixed(r.expectedChange,4),
+      toFixed(r.expPrice,6),
+      toFixed(r.buy,6),
+      toFixed(r.sell,6),
+      toFixed(r.support,6),
+      toFixed(r.resistance,6),
+      `"${(r.comment||'').replaceAll('"','""')}"`
     ].join(','));
   });
   return lines.join('\n');
 }
-
-// helpers
+function csvSafe(s){ return `"${String(s||'').replaceAll('"','""')}"`; }
 function escapeHtml(s){ if(!s) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
 // UI wiring
 el.reload.addEventListener('click', ()=> load(100));
 el.load200.addEventListener('click', ()=> load(200));
 el.download.addEventListener('click', ()=>{
-  if(!ROWS || ROWS.length===0){ alert('Няма данни — заредете първо.'); return; }
+  if(!ROWS || ROWS.length===0){ alert('Няма данни — направете зареждане първо.'); return; }
   const csv = toCSV(ROWS);
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
@@ -597,11 +504,10 @@ el.download.addEventListener('click', ()=>{
 });
 el.search.addEventListener('input', render);
 el.sortBy.addEventListener('change', render);
-el.timeframe.addEventListener('change', ()=> {
-  if(confirm('Смяна на timeframe — да заредя нови данни?')) load(ROWS.length>150?200:100);
-});
+el.timeframe.addEventListener('change', ()=> { /* auto-reload on timeframe change */ if(confirm('Смяна на timeframe, искате ли да презаредите данните с новия timeframe?')) load(ROWS.length>150?200:100); });
 
-// auto-load small set (friendly)
+// initial small helper: load default 100 on first open
+// but do not auto-run if user wants to click — we'll auto-run to be friendly
 load(100);
 
 </script>
